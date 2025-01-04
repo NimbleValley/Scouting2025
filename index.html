@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024 Hexhounds Scouting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/icon" href="img/favicon.ico" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"> </script>
+    <script src="https://SortableJS.github.io/Sortable/Sortable.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2 "></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix"></script>
+</head>
+
+<body>
+
+    <!--<div id="loading-container">
+        <div id="load-horizontal"></div>
+        <div id="load-vertical"></div>
+    </div>-->
+    <div id="pick-list-container">
+        <input type="range" min="1.5" max="5" value="4" class="slider" id="pick-list-scale" step="0.1">
+        <form id="pick-list-form">
+            <button id="sync-pick-list-button" class="pick-list-operator-button" type="submit">Sync</button>
+        </form>
+        <button id="sort-pick-list-button" class="pick-list-operator-button" onclick="showPickListSort()">Sort</button>
+        <button id="save-pick-list-button" class="pick-list-operator-button" onclick="downloadPickList()">Save</button>
+        <button id="recover-pick-list-button" class="pick-list-operator-button" onclick="recoverPickList()">Recover</button>
+        <div id="number-pick-list-container">
+
+        </div>
+        <div id="inner-pick-list-container">
+
+        </div>
+    </div>
+
+    <div id="breakdown-grid">
+
+    </div>
+
+    <div id="settings">
+        <div id="settings-interior">
+            <h5>Settings</h5>
+            <select name="event" id="event-select"></select>
+
+            <div class="vertical-container">
+                <label for="highlight-select" class="setting-label">Team highlight</label>
+                <select name="highlight" id="highlight-select" style="width: fit-content;">
+                    <option value="false" selected>No highlight</option>
+                    <option value="true">Red-Green highlight</option>
+                </select>
+            </div>
+
+            <div class="vertical-container">
+                <label for="spreadsheet-url-input" class="setting-label">Raw Data URL:</label>
+                <input type="text" id="spreadsheet-url-input">
+            </div>
+
+            <!--<div class="horizontal-container">
+                <label for="auto-download-input" class="setting-label">Auto-download interval:</label>
+                <input type="text" id="auto-download-input">
+            </div>-->
+
+            <h5 id="settings-back" onclick="toggleSettings()">Back</h5>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <div id="side-button-container">
+            <div class="side-button" onclick="refreshData()">Refresh</div>
+            <div class="side-button active" onclick="getTeamData()">Tables</div>
+            <!-- FIXME MIGHT HAVE TO CALL openTeamBreakdowns() twice for some reason, not sure why-->
+            <div class="side-button" onclick="setUpTeamBreakdowns(); openTeamBreakdowns();">Breakdown</div>
+            <div class="side-button" onclick="setUpCategories()">Ranks</div>
+            <div class="side-button" onclick="setUpGraph()">Graph</div>
+            <div class="side-button" onclick="setUpCompare()">Compare</div>
+            <!--<div class="side-button" onclick="setUpMatches()">Matches</div>-->
+            <div class="side-button" onclick="setUpSimulations()">Simulate</div>
+            <!--<div class="side-button" onclick="setUpMatches()">Matches</div>-->
+            <div class="side-button" onclick="setUpPickList()">Pick List</div>
+            <div class="side-button" onclick="toggleSettings()">Settings</div>
+        </div>
+        <div id="open-sidebar" onclick="toggleSidebar()">
+            <p>></p>
+        </div>
+    </div>
+    <div id="data-table">
+    </div>
+    <div id="breakdown-lines-container">
+    </div>
+    <div id="graph-container">
+    </div>
+
+    <div id="comment-modal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span id="close-comment-modal">&times;</span>
+            <p>Comment here</p>
+        </div>
+    </div>
+
+    <div id="pick-list-sort-modal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close-pick-list-sort-modal" onclick="closePickListSortModal()">&times;</span>
+            <p>Select statistic to sort by:</p>
+            <div class="container">
+                <div class="pick-list-sort-button" onclick="sortPickList(1)">Auto Points</div>
+                <div class="pick-list-sort-button" onclick="sortPickList(2)">Tele Points</div>
+                <div class="pick-list-sort-button" onclick="sortPickList(4)">Total Points</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Needed for CSV fetching, could remove, but probably not worth small speed boost -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+    <script src="lib/csv.js"></script>
+
+    <script src="js/graph.js"></script>
+    <script src="js/picklist.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/simulate.js"></script>
+    <script src="js/autopie.js"></script>
+    
+    <script src="js/compare.js"></script>
+</body>
+
+</html>

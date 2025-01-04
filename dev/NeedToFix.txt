@@ -1,0 +1,26 @@
+---- ISSUES ----
+
+Breakdowns take too long to run, why is the setup called multiple times? 
+Also team data doesn't need to populate rows for breakdown, useless waste of time 
+
+
+
+---- NEW FEATURES ----
+
+ADD SPIDER GRAPHS
+
+Add team similarity insights
+
+Add features to pick list tab, such as data comparisons & auto sort
+
+Make autos more stimulating, maybe a drag and drop to visualize paths???
+
+
+
+---- UPDATE OLD FEATURES ----
+
+Merge comparisons with graph tab probably
+
+If time make match tab functional?
+
+Take a look at the sorting parameters, they seem strange & unnecessary
