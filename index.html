@@ -40,10 +40,6 @@
         </div>
     </div>
 
-    <div id="breakdown-grid">
-
-    </div>
-
     <div id="settings">
         <div id="settings-interior">
             <h5>Settings</h5>
@@ -76,7 +72,7 @@
             <div class="side-button" onclick="refreshData()">Refresh</div>
             <div class="side-button active" onclick="getTeamData()">Tables</div>
             <!-- FIXME MIGHT HAVE TO CALL openTeamBreakdowns() twice for some reason, not sure why-->
-            <div class="side-button" onclick="setUpTeamBreakdowns(); openTeamBreakdowns();">Breakdown</div>
+            <div class="side-button" onclick="setUpTeamBreakdowns();">Breakdown</div>
             <div class="side-button" onclick="setUpCategories()">Ranks</div>
             <div class="side-button" onclick="setUpGraph()">Graph</div>
             <div class="side-button" onclick="setUpCompare()">Compare</div>
@@ -91,8 +87,6 @@
         </div>
     </div>
     <div id="data-table">
-    </div>
-    <div id="breakdown-lines-container">
     </div>
     <div id="graph-container">
     </div>
@@ -124,10 +118,10 @@
     <script src="lib/csv.js"></script>
 
     <script src="js/graph.js"></script>
-    <script src="js/picklist.js"></script>
     <script src="js/index.js"></script>
     <script src="js/simulate.js"></script>
     <script src="js/autopie.js"></script>
+    <script src="js/new-breakdowns.js"></script>
     
     <script src="js/compare.js"></script>
 </body>

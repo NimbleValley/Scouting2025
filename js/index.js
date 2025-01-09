@@ -38,17 +38,10 @@ if (localStorage.getItem("spreadsheet-url") == null || localStorage.getItem("spr
     urlInput.value = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsDG3DqzC9lAUfmVWAbt3kxXpbH_LFrPA6NzRWrddU7xFr9FEb9TGAar-AoGdJ7FBjA8gDBm9MJoFb/pub?gid=0&single=true&output=csv";
 }
 
-
-// Breakdown constants
-const breakdownLines = document.getElementById("breakdown-lines-container");
-const breakdownGrid = document.getElementById("breakdown-grid");
-
 // FIXME important these match up, probably could improve
 
-const teamDataToKeep = ['Team Number', 'Auto Speaker Made', 'Auto Speaker Missed', 'Tele Speaker Made', 'Tele Speaker Missed'];
-
-var firstbreakdown = true;
-
+const teamDataToKeep = ['Team Number', 'Total Points', 'Auto Points', 'Tele Points', 'Endgame Points', 'Auto L4', 'Auto L3', 'Auto L2', 'Auto L1', 'Auto Processor', 'Auto Net', 'Auto Algae Removed', 'Auto Miss', 'Auto Coral', 'Tele L4', 'Tele L3', 'Tele L2', 'Tele L1', 'Tele Processor', 'Tele Net', 'Tele Algae Removed', 'Tele Miss', 'Tele Coral', 'Total Net', 'Total Processor', 'Total Algae Removed', 'Total Coral', 'Driver Rating', 'Intake Rating', 'Cycle Rating'];
+const breakdownCategories = ['Total Points', 'Auto Points', 'Tele Points', 'Endgame Points', 'Auto Coral', 'Tele Coral', 'Total Net', 'Total Processor', 'Total Algae Removed'];
 
 // Graphing variables
 const graphContainer = document.getElementById("graph-container");
@@ -307,10 +300,8 @@ function getData() {
     sideButtons[1].classList.add("active");
 
     // Hide other tabs
-    breakdownLines.style.display = "none";
     graphContainer.style.display = "none";
     pickListContainer.style.display = "none";
-    breakdownGrid.style.display = "none";
 
     rawTable.innerHTML = "<h5>Fetching Spreadsheet...</h5>";
     CSV.fetch({
@@ -338,10 +329,15 @@ function getData() {
         TEAMS.sort(function (a, b) { return a - b });
         //console.log(TEAMS);
 
+        RECORDS.sort(function(a,b) {
+            return a[FIELDS.indexOf('Match Number')]-b[FIELDS.indexOf('Match Number')];
+        });
+
         localStorage.setItem("direction", 0);
         localStorage.setItem("column", -1);
         // Now, update pick list
-        getPickList();
+        //getPickList();
+        resetRaw();
     }).catch(error => {
         // Oh no :(
         console.log(error);
@@ -356,10 +352,8 @@ function getData() {
 
 // Opens raw data table, resets raw data table
 function resetRaw() {
-    breakdownLines.style.display = "none";
     graphContainer.style.display = "none";
     pickListContainer.style.display = "none";
-    breakdownGrid.style.display = "none";
 
     rawTable.innerHTML = "";
     TEAMS_FLIPPED = [];
@@ -373,24 +367,24 @@ function resetRaw() {
     tableHeaderContainer.innerHTML = `<select id='table-type-select' value='raw'><option value="team">Team Data</option><option value="raw" selected>Raw Data</option></select> <label for='raw-match-number-input' style='margin-left: 7vh;'>Jump to match:</label><input type='text' id='raw-match-number-input'>`;
     rawTable.appendChild(tableHeaderContainer);
 
-    document.getElementById('table-type-select').addEventListener('change', function(e) {
-        if(document.getElementById('table-type-select').value == 'team') {
+    document.getElementById('table-type-select').addEventListener('change', function (e) {
+        if (document.getElementById('table-type-select').value == 'team') {
             getTeamData();
         }
     });
 
-    document.getElementById('raw-match-number-input').addEventListener('change', function(e) {
+    document.getElementById('raw-match-number-input').addEventListener('change', function (e) {
         let desiredMatch = parseInt(document.getElementById('raw-match-number-input').value);
         let matchNumberColumnIndex = FIELDS.indexOf('Match Number');
         let column = document.getElementsByClassName('column')[matchNumberColumnIndex];
 
-        for(let i = 1; i < column.children.length; i ++) {
-            if(parseInt(column.children[i].innerText) == desiredMatch) {
+        for (let i = 1; i < column.children.length; i++) {
+            if (parseInt(column.children[i].innerText) == desiredMatch) {
                 column.children[i].scrollIntoView({
                     block: 'center',
                     behavior: 'smooth' // Optional for smooth scrolling
-                  });
-                setRowHighlight(i-1, true);
+                });
+                setRowHighlight(i - 1, true);
                 return;
             }
         }
@@ -485,7 +479,7 @@ function resetRaw() {
             }
 
             // Special cases where clicking does another behavior, such as opening comments section
-            if (FIELDS[s].includes("Comments")) {
+            if (FIELDS[s].includes("Comments") || FIELDS[s].includes("Human Player Notes")) {
                 tempDataValue.innerText = "{ View }";
                 tempDataValue.id = i;
                 tempDataValue.classList.add(s);
@@ -501,7 +495,7 @@ function resetRaw() {
                     setRowHighlight(this.id, false);
                 });
             }
-            rawTable.children[s+1].appendChild(tempDataValue);
+            rawTable.children[s + 1].appendChild(tempDataValue);
         }
     }
 }
@@ -591,10 +585,7 @@ function setRowHighlight(row, always) {
 
 function setUpGraph() {
     graphContainer.innerHTML = "";
-
-    breakdownLines.style.display = "none";
     pickListContainer.style.display = "none";
-    breakdownGrid.style.display = "none";
 
     if (TEAM_ROWS.length < 1) {
         getTeamData();
@@ -1006,7 +997,7 @@ function sortColumn(colNum, type, records, columns, field, team, useCols) {
                     temp.classList[1] = i;
                 }
 
-                if (field[s].includes("Comments")) {
+                if (field[s].includes("Comments") || FIELDS[s].includes("Human Player Notes")) {
                     temp.innerText = "{ View }";
                     temp.id = i;
                     temp.classList.add(s);
@@ -1522,10 +1513,8 @@ function closePickListSortModal() {
 
 function getTeamData() {
     // Hide all other tabs, resets arrays
-    breakdownLines.style.display = "none";
     graphContainer.style.display = "none";
     pickListContainer.style.display = "none";
-    breakdownGrid.style.display = "none";
 
     rawTable.innerHTML = "";
     TEAM_COLUMNS = [];
@@ -1537,8 +1526,8 @@ function getTeamData() {
     tableHeaderContainer.innerHTML = `<select id='table-type-select' value='raw'><option value="team" selected>Team Data</option><option value="raw">Raw Data</option></select>`;
     rawTable.appendChild(tableHeaderContainer);
 
-    document.getElementById('table-type-select').addEventListener('change', function(e) {
-        if(document.getElementById('table-type-select').value == 'raw') {
+    document.getElementById('table-type-select').addEventListener('change', function (e) {
+        if (document.getElementById('table-type-select').value == 'raw') {
             resetRaw();
         }
     });
@@ -1647,7 +1636,7 @@ function getTeamData() {
                 }
             }
 
-            rawTable.children[c+1].appendChild(tempData);
+            rawTable.children[c + 1].appendChild(tempData);
 
             // Average out the data
             TEAM_COLUMNS[c][i] = average;
@@ -1709,34 +1698,6 @@ function getTeamList() {
     // Sorts teams by ascending number
     TEAMS.sort((a, b) => a - b);
     //console.log(TEAMS);
-}
-
-// Fetches all matches from specified event, adds video link if available
-function getTeamMatchesTBA(url) {
-    fetch(url, tbaOptions)
-        .then((response) => response.json())
-        .then((json) => {
-            console.log(json);
-            let tempCommentContainer = document.getElementById("breakdown-comment-container");
-            let tempLinkContainer = document.createElement("div");
-            tempLinkContainer.id = "team-link-container";
-            for (let i = 0; i < json.length; i++) {
-                let tempMatchText = document.createElement("a");
-                tempMatchText.className = "breakdown-comment";
-                tempMatchText.text = json[i].comp_level.toUpperCase() + " " + json[i].match_number;
-                if (json[i].videos.length > 0) {
-                    tempMatchText.href = `https://www.youtube.com/watch?v=${json[i].videos[0].key}`;
-                } else {
-                    tempMatchText.text = tempMatchText.text + "(No Video Found)";
-                }
-                if (i < json.length - 1) {
-                    tempMatchText.text = tempMatchText.text + ",";
-                }
-                tempMatchText.target = "_blank";
-                tempLinkContainer.appendChild(tempMatchText);
-            }
-            tempCommentContainer.appendChild(tempLinkContainer);
-        });
 }
 
 // Gets all events & populates event select with them

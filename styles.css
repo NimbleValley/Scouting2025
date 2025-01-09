@@ -1,6 +1,6 @@
 :root {
     --bg-color: rgb(70, 65, 58);
-    
+
     --data-table: rgb(116, 111, 111);
 
     --card-color: rgb(23, 23, 23);
@@ -784,7 +784,7 @@ p {
         display: none;
         background-color: transparent;
     }
-    
+
     .side-button:hover::before {
         display: none;
         background-color: transparent;
@@ -1295,7 +1295,7 @@ h9 {
     display: flex;
     width: fit-content;
     height: 65vh;
-    background-color: #161311;
+    background-color: #1d1b19;
     justify-content: space-around;
     align-items: center;
     padding: 1vh;
@@ -1664,7 +1664,7 @@ h6 {
     color: white !important;
 }
 
-@media (max-aspect-ratio: 1/1) { 
+@media (max-aspect-ratio: 1/1) {
     #graph-container {
         margin-top: 5vw;
     }
@@ -1672,6 +1672,7 @@ h6 {
     #graph-canvas {
         margin-left: -5vw;
     }
+
     #graph-category-select-team {
         margin-right: 2vw !important;
     }
@@ -1740,7 +1741,7 @@ h6 {
     #category-team-select {
         float: right;
     }
-    
+
     #category-category-select {
         float: right;
         margin-top: 2.5vh;
@@ -1825,6 +1826,36 @@ h6 {
     color: white;
     margin-top: 5vh;
     font-size: 3vh;
+}
+
+
+/* NEW BREAKDOWNS */
+
+#breakdown-container {
+    display: flex;
+    gap: 5vh;
+    background-color: var(--bg-color);
+}
+
+#breakdown-team-select {
+    width: fit-content;
+}
+
+#breakdown-video-container {
+    width: 50vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #313131;
+    color: white;
+    padding: 2vh;
+    height: 35vh;
+    justify-content: space-around;
+    gap: 2vh;
+    border-radius: 0.75vh;
+}
+
+#breakdown-match-video-select {
+    width: 15vh;
 }
 
 
