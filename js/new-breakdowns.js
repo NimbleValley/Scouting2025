@@ -194,7 +194,7 @@ function runTeamBreakdown(team) {
         totalTeleLevels[0] += RECORDS[i][FIELDS.indexOf('Tele L1')];
         totalTeleLevels[1] += RECORDS[i][FIELDS.indexOf('Tele L2')];
         totalTeleLevels[2] += RECORDS[i][FIELDS.indexOf('Tele L3')];
-        totalTeleLevels[3] += RECORDS[i][FIELDS.indexOf('ATeleuto L4')];
+        totalTeleLevels[3] += RECORDS[i][FIELDS.indexOf('Tele L4')];
     }
 
     let autoLabels = ['L1', 'L2', 'L3', 'L4'];
