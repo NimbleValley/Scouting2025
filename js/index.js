@@ -42,6 +42,7 @@ if (localStorage.getItem("spreadsheet-url") == null || localStorage.getItem("spr
 
 const teamDataToKeep = ['Team Number', 'Total Points', 'Auto Points', 'Tele Points', 'Endgame Points', 'Auto L4', 'Auto L3', 'Auto L2', 'Auto L1', 'Auto Processor', 'Auto Net', 'Auto Algae Removed', 'Auto Miss', 'Auto Coral', 'Tele L4', 'Tele L3', 'Tele L2', 'Tele L1', 'Tele Processor', 'Tele Net', 'Tele Algae Removed', 'Tele Miss', 'Tele Coral', 'Total Net', 'Total Processor', 'Total Algae Removed', 'Total Coral', 'Driver Rating', 'Intake Rating', 'Cycle Rating'];
 const breakdownCategories = ['Total Points', 'Auto Points', 'Tele Points', 'Endgame Points', 'Auto Coral', 'Tele Coral', 'Total Net', 'Total Processor', 'Total Algae Removed'];
+const consistencyCategories = ['Total Points', 'Auto Points', 'Tele Points', 'Endgame Points', 'Auto Miss', 'Tele Miss', 'Auto Coral', 'Tele Coral', 'Total Net', 'Total Processor', 'Total Algae Removed'];
 
 // Graphing variables
 const graphContainer = document.getElementById("graph-container");

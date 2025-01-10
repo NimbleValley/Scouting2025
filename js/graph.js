@@ -224,7 +224,7 @@ function showMatrixGraph(canvas, teamData, matchNumbers, includedFields, descrip
 }
 
 function showConsistencyLineGraph(canvas, matches, values, teams) {
-    let graphContainer = document.getElementById("graph-canvas-container");
+    //let graphContainer = document.getElementById("graph-canvas-container");
 
     terminateGraph();
 
@@ -249,8 +249,8 @@ function showConsistencyLineGraph(canvas, matches, values, teams) {
         data: data
     };
 
-    if(window.innerHeight > window.innerWidth) {
-        graphContainer.style.width = `85vw`;
+    if (window.innerHeight > window.innerWidth) {
+        //graphContainer.style.width = `85vw`;
     }
 
     graph = new Chart(canvas, config);
@@ -305,4 +305,63 @@ function terminateGraph() {
     if (graph != null) {
         graph.destroy();
     }
+}
+
+function showPieGraph(canvas, values, labels, title) {
+
+    terminateGraph();
+
+    console.log("Rendering horizontal bar graph.");
+
+    const data = {
+        labels: labels,
+        datasets: [{
+          label: 'Corals',
+          data: values,
+          backgroundColor: [
+            'rgb(128, 9, 25)',
+            'rgb(245, 66, 176)',
+            'rgb(161, 66, 245)',
+            'rgb(66, 78, 245)'
+          ],
+          hoverOffset: 4
+        }]
+    };
+
+    const options = {
+        plugins: {
+            legend: {
+                labels: {
+                    // This more specific font property overrides the global property
+                    font: {
+                        size: 15
+                    }
+                }
+            },
+            tooltip: {
+                titleFont: {
+                    size: 15
+                },
+                bodyFont: {
+                    size: 15
+                }
+            },
+            title: {
+                display: true,
+                text: title
+            }
+        }
+    };
+
+    const config = {
+        type: 'pie',
+        data: data,
+        options: options
+    };
+
+    if (window.innerHeight > window.innerWidth) {
+        //graphContainer.style.width = `85vw`;
+    }
+
+    graph = new Chart(canvas, config);
 }

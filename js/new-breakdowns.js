@@ -66,9 +66,66 @@ function setUpTeamBreakdowns() {
         breakdownLines.appendChild(tempContainer);
     }
 
+    let secondContainer = document.createElement('div');
+    secondContainer.id = 'breakdown-second-container'
+
+    let videoGraphContainer = document.createElement('div');
+    videoGraphContainer.id = 'video-graph-container';
+
     let videoContainer = document.createElement('div');
     videoContainer.id = 'breakdown-video-container';
-    breakdownContainer.appendChild(videoContainer);
+
+    let consistencyContainer = document.createElement('div');
+    consistencyContainer.id = 'breakdown-consistency-graph-container';
+    let consistencySelect = document.createElement('select');
+    consistencySelect.id = 'breakdown-consistency-graph-select';
+    consistencySelect.addEventListener('change', function () {
+        let valueSelect = document.getElementById('breakdown-consistency-graph-select');
+        let matches = [];
+        let teamFields = [];
+        let team = document.getElementById('breakdown-team-select').value;
+
+        for (let i = 0; i < RECORDS.length; i++) {
+            if (parseInt(RECORDS[i][0]) == parseInt(team) && !matches.includes(RECORDS[i][2])) {
+                matches.push(parseInt(RECORDS[i][2]));
+                teamFields.push(RECORDS[i][FIELDS.indexOf(TEAM_FIELDS[TEAM_FIELDS.indexOf(valueSelect.value)])]);
+            }
+        }
+
+        console.warn(teamFields);
+
+        showConsistencyLineGraph(document.getElementById('breakdown-consistency-graph-canvas'), matches, teamFields, [team]);
+    });
+    let consistencyCanvas = document.createElement('canvas');
+    consistencyCanvas.id = 'breakdown-consistency-graph-canvas';
+    for (let i = 0; i < consistencyCategories.length; i++) {
+        let tempOption = document.createElement('option');
+        tempOption.value = consistencyCategories[i];
+        tempOption.innerText = consistencyCategories[i];
+        consistencySelect.appendChild(tempOption);
+    }
+    consistencyContainer.appendChild(consistencySelect);
+    consistencyContainer.appendChild(consistencyCanvas);
+    videoGraphContainer.appendChild(videoContainer);
+    videoGraphContainer.appendChild(consistencyContainer);
+
+
+    let teamInformationContainer = document.createElement('div');
+    teamInformationContainer.id = 'breakdown-team-information-container';
+
+    let autoPlacementLevelChartContainer = document.createElement('div');
+    autoPlacementLevelChartContainer.id = 'auto-placement-level-chart-container';
+    let autoPlacementLevelChartCanvas = document.createElement('canvas');
+    autoPlacementLevelChartCanvas.id = 'auto-placement-level-chart-canvas';
+    autoPlacementLevelChartContainer.appendChild(autoPlacementLevelChartCanvas);
+
+    teamInformationContainer.appendChild(autoPlacementLevelChartContainer);
+
+
+    secondContainer.appendChild(videoGraphContainer);
+    secondContainer.appendChild(teamInformationContainer);
+
+    breakdownContainer.appendChild(secondContainer);
 
     runTeamBreakdown(breakdownTeamSelect.value);
 }
@@ -99,7 +156,76 @@ function runTeamBreakdown(team) {
     videoContainer.innerHTML = '';
 
     getTeamMatchesTBA(`https://www.thebluealliance.com/api/v3/team/frc${team}/event/2023mndu/matches`, videoContainer);
+
+
+
+
+    let valueSelect = document.getElementById('breakdown-consistency-graph-select');
+    let matches = [];
+    let teamFields = [];
+
+    for (let i = 0; i < RECORDS.length; i++) {
+        if (parseInt(RECORDS[i][0]) == parseInt(team) && !matches.includes(RECORDS[i][2])) {
+            matches.push(parseInt(RECORDS[i][2]));
+            teamFields.push(RECORDS[i][FIELDS.indexOf(TEAM_FIELDS[TEAM_FIELDS.indexOf(valueSelect.value)])]);
+        }
+    }
+
+    console.warn(teamFields);
+
+    showConsistencyLineGraph(document.getElementById('breakdown-consistency-graph-canvas'), matches, teamFields, [team]);
+
+    let totalAutoPieces = 0;
+    let totalAutoLevels = [0, 0, 0, 0];
+    let totalTelePieces = 0;
+    let totalTeleLevels = [0, 0, 0, 0];
+    for (let i = 0; i < RECORDS.length; i++) {
+        totalAutoPieces += RECORDS[i][FIELDS.indexOf('Auto Coral')];
+        totalAutoPieces += RECORDS[i][FIELDS.indexOf('Tele Coral')];
+        
+        totalTelePieces += RECORDS[i][FIELDS.indexOf('Auto Coral')];
+        totalTelePieces += RECORDS[i][FIELDS.indexOf('Tele Coral')];
+
+        totalAutoLevels[0] += RECORDS[i][FIELDS.indexOf('Auto L1')];
+        totalAutoLevels[1] += RECORDS[i][FIELDS.indexOf('Auto L2')];
+        totalAutoLevels[2] += RECORDS[i][FIELDS.indexOf('Auto L3')];
+        totalAutoLevels[3] += RECORDS[i][FIELDS.indexOf('Auto L4')];
+
+        totalTeleLevels[0] += RECORDS[i][FIELDS.indexOf('Tele L1')];
+        totalTeleLevels[1] += RECORDS[i][FIELDS.indexOf('Tele L2')];
+        totalTeleLevels[2] += RECORDS[i][FIELDS.indexOf('Tele L3')];
+        totalTeleLevels[3] += RECORDS[i][FIELDS.indexOf('ATeleuto L4')];
+    }
+
+    let autoLabels = ['L1', 'L2', 'L3', 'L4'];
+    let teleLabels = ['L1', 'L2', 'L3', 'L4'];
+
+    for(let i = 0; i < totalAutoLevels.length; i ++) {
+        if(totalAutoLevels[i] == 0) {
+            totalAutoLevels.splice(i, 1);
+            autoLabels.splice(i, 1);
+        }
+    }
+
+    for(let i = 0; i < totalTeleLevels.length; i ++) {
+        if(totalTeleLevels[i] == 0) {
+            totalTeleLevels.splice(i, 1);
+            teleLabels.splice(i, 1);
+        }
+    }
+
+    showPieGraph(document.getElementById('auto-placement-level-chart-canvas'), totalAutoLevels, autoLabels, 'Auto Corals');
 }
+
+
+
+
+
+
+
+
+
+
 
 function getTeamMatchesTBA(url, container) {
     fetch(url, tbaOptions)
@@ -120,8 +246,8 @@ function getTeamMatchesTBA(url, container) {
 
                     let tempContainer = document.createElement('div');
                     tempContainer.className = 'breakdown-video-container';
-                    tempContainer.innerHTML = `<iframe width="100%" height="90%" allowfullscreen
-                    src="https://www.youtube.com/embed/${json[i].videos[0].key}">
+                    tempContainer.innerHTML = `<iframe width='100%' height='90%' allowfullscreen
+                    src='https://www.youtube.com/embed/${json[i].videos[0].key}'>
                     </iframe>`;
                     currentMatchVideos.push(tempContainer);
                     matches.push(json[i].match_number);
@@ -130,7 +256,7 @@ function getTeamMatchesTBA(url, container) {
             let tempNewContainer = document.createElement('div');
             tempNewContainer.appendChild(tempLabel);
             tempNewContainer.appendChild(tempSelect);
-            tempSelect.addEventListener('change', function() {
+            tempSelect.addEventListener('change', function () {
                 document.getElementById('breakdown-video-container').removeChild(document.getElementById('breakdown-video-container').lastElementChild);
                 document.getElementById('breakdown-video-container').appendChild(currentMatchVideos[this.value]);
             });

@@ -1294,7 +1294,7 @@ h9 {
 #breakdown-lines-container {
     display: flex;
     width: fit-content;
-    height: 65vh;
+    height: 75vh;
     background-color: #1d1b19;
     justify-content: space-around;
     align-items: center;
@@ -1317,7 +1317,7 @@ h9 {
     position: relative;
     background-color: #2b2b2b;
     width: 2vh;
-    height: 75%;
+    height: 65%;
     border-radius: 1vh;
     transition: scale 0.15s;
 }
@@ -1562,7 +1562,7 @@ h4 {
     font-size: 2vh;
     margin: 0;
     font-weight: lighter;
-    transform: translate(4.5vh) rotate(70deg);
+    transform: translate(2vh, -8vh) rotate(80deg);
     height: 2.9vh;
     width: 27vh;
     color: white;
@@ -1834,6 +1834,7 @@ h6 {
 #breakdown-container {
     display: flex;
     gap: 5vh;
+    padding-right: 5vh;
     background-color: var(--bg-color);
 }
 
@@ -1848,14 +1849,50 @@ h6 {
     background-color: #313131;
     color: white;
     padding: 2vh;
-    height: 35vh;
+    height: 47vh;
+    justify-content: space-around;
+    gap: 2vh;
+    border-radius: 0.75vh;
+
+    iframe {
+        height: 35vh;
+    }
+}
+
+#breakdown-match-video-select {
+    width: 15vh;
+}
+
+#breakdown-consistency-graph-select {
+    width: fit-content;
+}
+
+#breakdown-consistency-graph-container {
+    width: 75vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #313131;
+    color: white;
+    padding: 2vh;
+    height: 47vh;
     justify-content: space-around;
     gap: 2vh;
     border-radius: 0.75vh;
 }
 
-#breakdown-match-video-select {
-    width: 15vh;
+#video-graph-container {
+    display: flex;
+    gap: 5vh;
+    width: fit-content;
+}
+
+#breakdown-second-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#auto-placement-level-chart-canvas {
+    height: 28vh !important;
 }
 
 
