@@ -1,3 +1,5 @@
+let breakdownGraphs = [];
+
 function setUpTeamBreakdowns() {
     if (TEAM_FIELDS.length < 2) {
         getTeamData();
@@ -80,6 +82,8 @@ function setUpTeamBreakdowns() {
     let consistencySelect = document.createElement('select');
     consistencySelect.id = 'breakdown-consistency-graph-select';
     consistencySelect.addEventListener('change', function () {
+        breakdownGraphs[0].destroy();
+
         let valueSelect = document.getElementById('breakdown-consistency-graph-select');
         let matches = [];
         let teamFields = [];
@@ -94,7 +98,7 @@ function setUpTeamBreakdowns() {
 
         console.warn(teamFields);
 
-        showConsistencyLineGraph(document.getElementById('breakdown-consistency-graph-canvas'), matches, teamFields, [team]);
+        breakdownGraphs[0] = showConsistencyLineGraph(document.getElementById('breakdown-consistency-graph-canvas'), matches, teamFields, [team]);
     });
     let consistencyCanvas = document.createElement('canvas');
     consistencyCanvas.id = 'breakdown-consistency-graph-canvas';
@@ -113,14 +117,25 @@ function setUpTeamBreakdowns() {
     let teamInformationContainer = document.createElement('div');
     teamInformationContainer.id = 'breakdown-team-information-container';
 
-    let autoPlacementLevelChartContainer = document.createElement('div');
-    autoPlacementLevelChartContainer.id = 'auto-placement-level-chart-container';
+    let autoPlacementChartContainer = document.createElement('div');
+    autoPlacementChartContainer.className = 'placement-level-chart-canvas-container';
+
     let autoPlacementLevelChartCanvas = document.createElement('canvas');
     autoPlacementLevelChartCanvas.id = 'auto-placement-level-chart-canvas';
-    autoPlacementLevelChartContainer.appendChild(autoPlacementLevelChartCanvas);
+    autoPlacementLevelChartCanvas.className = 'placement-level-chart-canvas';
 
-    teamInformationContainer.appendChild(autoPlacementLevelChartContainer);
+    let telePlacementChartContainer = document.createElement('div');
+    telePlacementChartContainer.className = 'placement-level-chart-canvas-container';
 
+    let telePlacementLevelChartCanvas = document.createElement('canvas');
+    telePlacementLevelChartCanvas.id = 'tele-placement-level-chart-canvas';
+    telePlacementLevelChartCanvas.className = 'placement-level-chart-canvas';
+
+    autoPlacementChartContainer.appendChild(autoPlacementLevelChartCanvas);
+    telePlacementChartContainer.appendChild(telePlacementLevelChartCanvas);
+
+    teamInformationContainer.appendChild(autoPlacementChartContainer);
+    teamInformationContainer.appendChild(telePlacementChartContainer);
 
     secondContainer.appendChild(videoGraphContainer);
     secondContainer.appendChild(teamInformationContainer);
@@ -133,6 +148,12 @@ function setUpTeamBreakdowns() {
 var currentMatchVideos = [];
 
 function runTeamBreakdown(team) {
+
+    console.warn(breakdownGraphs.length);
+    for (let i = 0; i < breakdownGraphs.length; i++) {
+        breakdownGraphs[i].destroy();
+    }
+    breakdownGraphs = [];
 
     currentMatchVideos = []
 
@@ -171,50 +192,57 @@ function runTeamBreakdown(team) {
         }
     }
 
-    console.warn(teamFields);
-
-    showConsistencyLineGraph(document.getElementById('breakdown-consistency-graph-canvas'), matches, teamFields, [team]);
+    let tempConsistencyGraph = showConsistencyLineGraph(document.getElementById('breakdown-consistency-graph-canvas'), matches, teamFields, [team]);
+    breakdownGraphs.push(tempConsistencyGraph);
 
     let totalAutoPieces = 0;
     let totalAutoLevels = [0, 0, 0, 0];
     let totalTelePieces = 0;
     let totalTeleLevels = [0, 0, 0, 0];
     for (let i = 0; i < RECORDS.length; i++) {
-        totalAutoPieces += RECORDS[i][FIELDS.indexOf('Auto Coral')];
-        totalAutoPieces += RECORDS[i][FIELDS.indexOf('Tele Coral')];
-        
-        totalTelePieces += RECORDS[i][FIELDS.indexOf('Auto Coral')];
-        totalTelePieces += RECORDS[i][FIELDS.indexOf('Tele Coral')];
+        if (RECORDS[i][TEAM_INDEX] == team) {
+            totalAutoPieces += RECORDS[i][FIELDS.indexOf('Auto Coral')];
+            totalAutoPieces += RECORDS[i][FIELDS.indexOf('Tele Coral')];
 
-        totalAutoLevels[0] += RECORDS[i][FIELDS.indexOf('Auto L1')];
-        totalAutoLevels[1] += RECORDS[i][FIELDS.indexOf('Auto L2')];
-        totalAutoLevels[2] += RECORDS[i][FIELDS.indexOf('Auto L3')];
-        totalAutoLevels[3] += RECORDS[i][FIELDS.indexOf('Auto L4')];
+            totalTelePieces += RECORDS[i][FIELDS.indexOf('Auto Coral')];
+            totalTelePieces += RECORDS[i][FIELDS.indexOf('Tele Coral')];
 
-        totalTeleLevels[0] += RECORDS[i][FIELDS.indexOf('Tele L1')];
-        totalTeleLevels[1] += RECORDS[i][FIELDS.indexOf('Tele L2')];
-        totalTeleLevels[2] += RECORDS[i][FIELDS.indexOf('Tele L3')];
-        totalTeleLevels[3] += RECORDS[i][FIELDS.indexOf('Tele L4')];
+            totalAutoLevels[0] += RECORDS[i][FIELDS.indexOf('Auto L1')];
+            totalAutoLevels[1] += RECORDS[i][FIELDS.indexOf('Auto L2')];
+            totalAutoLevels[2] += RECORDS[i][FIELDS.indexOf('Auto L3')];
+            totalAutoLevels[3] += RECORDS[i][FIELDS.indexOf('Auto L4')];
+
+            totalTeleLevels[0] += RECORDS[i][FIELDS.indexOf('Tele L1')];
+            totalTeleLevels[1] += RECORDS[i][FIELDS.indexOf('Tele L2')];
+            totalTeleLevels[2] += RECORDS[i][FIELDS.indexOf('Tele L3')];
+            totalTeleLevels[3] += RECORDS[i][FIELDS.indexOf('Tele L4')];
+        }
     }
 
     let autoLabels = ['L1', 'L2', 'L3', 'L4'];
     let teleLabels = ['L1', 'L2', 'L3', 'L4'];
 
-    for(let i = 0; i < totalAutoLevels.length; i ++) {
-        if(totalAutoLevels[i] == 0) {
+    for (let i = 0; i < totalAutoLevels.length; i++) {
+        if (totalAutoLevels[i] == 0) {
             totalAutoLevels.splice(i, 1);
             autoLabels.splice(i, 1);
+            i--;
         }
     }
 
-    for(let i = 0; i < totalTeleLevels.length; i ++) {
-        if(totalTeleLevels[i] == 0) {
+    for (let i = 0; i < totalTeleLevels.length; i++) {
+        if (totalTeleLevels[i] == 0) {
             totalTeleLevels.splice(i, 1);
             teleLabels.splice(i, 1);
+            i--;
         }
     }
 
-    showPieGraph(document.getElementById('auto-placement-level-chart-canvas'), totalAutoLevels, autoLabels, 'Auto Corals');
+    let tempAutoPieGraph = showPieGraph(document.getElementById('auto-placement-level-chart-canvas'), totalAutoLevels, autoLabels, 'Auto Corals');
+    breakdownGraphs.push(tempAutoPieGraph);
+
+    let tempTelePieGraph = showPieGraph(document.getElementById('tele-placement-level-chart-canvas'), totalTeleLevels, teleLabels, 'Tele Corals');
+    breakdownGraphs.push(tempTelePieGraph);
 }
 
 

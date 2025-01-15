@@ -8,7 +8,6 @@ function setUpSimulations() {
     rawTable.innerHTML = '';
     graphContainer.style.display = 'none';
     pickListContainer.style.display = 'none';
-    breakdownGrid.style.display = 'none';
 
     let simulateContainer = document.createElement('div');
     simulateContainer.id = 'simulate-container';

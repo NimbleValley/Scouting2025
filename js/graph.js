@@ -7,8 +7,6 @@ Chart.defaults.color = '#ffffff';
 function showBarGraph(canvas, sortedGraphColumn, teamsSorted, description) {
     let graphContainer = document.getElementById("graph-canvas-container");
 
-    terminateGraph();
-
     console.log("Rendering horizontal bar graph.");
 
     var data = [];
@@ -55,8 +53,6 @@ function showScatterChart(canvas, teamData2d, description) {
     resizeGraph();
 
     teamData2d = mergeScatterData(teamData2d);
-
-    terminateGraph();
 
     console.log("Rendering scatter graph.");
 
@@ -137,7 +133,6 @@ function showScatterChart(canvas, teamData2d, description) {
 
 function showMatrixGraph(canvas, teamData, matchNumbers, includedFields, description) {
     resizeGraph();
-    terminateGraph();
 
     console.log("Rendering consistency matrix graph.");
 
@@ -226,9 +221,7 @@ function showMatrixGraph(canvas, teamData, matchNumbers, includedFields, descrip
 function showConsistencyLineGraph(canvas, matches, values, teams) {
     //let graphContainer = document.getElementById("graph-canvas-container");
 
-    terminateGraph();
-
-    console.log("Rendering horizontal bar graph.");
+    console.log("Rendering consistency line graph.");
 
     let matchData = [];
 
@@ -253,7 +246,7 @@ function showConsistencyLineGraph(canvas, matches, values, teams) {
         //graphContainer.style.width = `85vw`;
     }
 
-    graph = new Chart(canvas, config);
+    return new Chart(canvas, config);
 }
 
 // Helper functions
@@ -301,30 +294,29 @@ function resizeGraph() {
     graphContainer.style.height = `85vh`;
 }
 
-function terminateGraph() {
-    if (graph != null) {
-        graph.destroy();
+function terminateGraph(tempGraph) {
+    if (tempGraph != null) {
+        tempGraph.destroy();
     }
 }
 
 function showPieGraph(canvas, values, labels, title) {
 
-    terminateGraph();
-
-    console.log("Rendering horizontal bar graph.");
+    console.log("Rendering pie graph.");
 
     const data = {
         labels: labels,
         datasets: [{
-          label: 'Corals',
-          data: values,
-          backgroundColor: [
-            'rgb(128, 9, 25)',
-            'rgb(245, 66, 176)',
-            'rgb(161, 66, 245)',
-            'rgb(66, 78, 245)'
-          ],
-          hoverOffset: 4
+            label: 'Corals',
+            data: values,
+            backgroundColor: [
+                'rgb(128, 9, 25)',
+                'rgb(245, 66, 176)',
+                'rgb(161, 66, 245)',
+                'rgb(66, 78, 245)'
+            ],
+            borderWidth: 0,
+            hoverOffset: 4
         }]
     };
 
@@ -334,9 +326,13 @@ function showPieGraph(canvas, values, labels, title) {
                 labels: {
                     // This more specific font property overrides the global property
                     font: {
-                        size: 15
-                    }
-                }
+                        size: 10
+                    },
+                    // Adjust padding around labels
+                    padding: 5,
+                    // Adjust box width 
+                    boxWidth: 10,
+                },
             },
             tooltip: {
                 titleFont: {
@@ -363,5 +359,5 @@ function showPieGraph(canvas, values, labels, title) {
         //graphContainer.style.width = `85vw`;
     }
 
-    graph = new Chart(canvas, config);
+    return new Chart(canvas, config);
 }

@@ -338,7 +338,7 @@ function getData() {
         localStorage.setItem("column", -1);
         // Now, update pick list
         //getPickList();
-        resetRaw();
+        getTeamData();
     }).catch(error => {
         // Oh no :(
         console.log(error);
@@ -476,7 +476,8 @@ function resetRaw() {
                 }
             } else {
                 // Otherwise that's not good because it should be there uh oh!
-                console.error("Team '" + String(RECORDS[i][TEAM_INDEX]) + "' not found in pick list :(");
+                // TODO
+                //console.error("Team '" + String(RECORDS[i][TEAM_INDEX]) + "' not found in pick list :(");
             }
 
             // Special cases where clicking does another behavior, such as opening comments section
@@ -691,6 +692,9 @@ function setUpGraph() {
 }
 
 function doGraph() {
+
+    terminateGraph();
+
     var graphCanvas = document.getElementById("graph-canvas");
 
     var graphMode = parseInt(document.getElementById("graph-number-select").value);
@@ -1018,11 +1022,11 @@ function sortColumn(colNum, type, records, columns, field, team, useCols) {
                     }
                     temp.innerText = sortedRows[i][s];
                 }
-                temp.style.boxShadow = "";
+                temp.style.boxShadow = '';
                 //Lol
                 if (true) {
                     //console.log(PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(sortedRows[i][0]))].color);
-                    if (PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(sortedRows[i][0]))].getColor() != 0) {
+                    if (PICK_LIST_TEAM_KEY.indexOf(String(sortedRows[i][0])) != -1 && PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(sortedRows[i][0]))].getColor() != 0) {
                         temp.style.boxShadow = `inset 0px 0px 0.15vh 0.35vh ${teamColors[PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(sortedRows[i][0]))].getColor() - 1]}`;
                         //console.log(tempData.style.backgroundColor);
                     }
@@ -1810,6 +1814,7 @@ function setUpCategories() {
     tempSelectContainer.appendChild(tempCategorySelect);
 
     categoryContainer.appendChild(tempSelectContainer);
+    categoryContainer.style.backgroundColor = '#313131';
     rawTable.appendChild(categoryContainer);
 
     if (localStorage.getItem("category") != null) {

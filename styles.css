@@ -993,7 +993,7 @@ h2 {
 }
 
 .stat-compare-container {
-    background-color: #333333;
+    background-color: #504d4d;
     width: 95%;
     height: 5vh;
     margin-top: 1vh;
@@ -1078,6 +1078,7 @@ h2 {
     justify-content: space-around;
     align-items: center;
     flex-direction: column-reverse;
+    background-color: #3f3e3d;
 }
 
 .compare-pulse-0 {
@@ -1719,8 +1720,8 @@ h6 {
     border-radius: 0.67vh;
     height: 4vh;
     position: relative;
-    border-top: 0.5vh solid #131313;
-    border-bottom: 0.5vh solid #131313;
+    border-top: 0.5vh solid #313131;
+    border-bottom: 0.5vh solid #313131;
     font-weight: normal;
     padding: 0.75vh;
 
@@ -1891,8 +1892,14 @@ h6 {
     flex-direction: column;
 }
 
-#auto-placement-level-chart-canvas {
+.placement-level-chart-canvas-container {
     height: 28vh !important;
+    width: 28vh !important;
+}
+
+#breakdown-team-information-container {
+    display: flex;
+    width: fit-content;
 }
 
 
