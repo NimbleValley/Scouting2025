@@ -13,23 +13,45 @@ function setUpCompare() {
     compareHeaderContainer.id = "compare-header-container";
 
     let teamSelects = [];
+    let teamButtons = [];
     for (var i = 0; i < 2; i++) {
         let tempTeamSelect = document.createElement("select");
         tempTeamSelect.className = "compare-team-select";
+        let tempButton = document.createElement('button');
         for (var t = 0; t < TEAMS.length; t++) {
             let tempOption = document.createElement("option");
             tempOption.value = String(TEAMS[t]);
             tempOption.text = TEAMS[t];
             tempTeamSelect.appendChild(tempOption);
 
+            tempButton.dataset.team = TEAMS[t];
+            tempButton.dataset.id = i;
+            tempButton.innerText = 'View';
+            
         }
+        tempButton.addEventListener('click', function(e) {
+            localStorage.setItem('breakdown-team', localStorage.getItem(`compare-team-${this.dataset.id}`));
+            setUpTeamBreakdowns();
+            e.preventDefault();
+        });
         if (localStorage.getItem(`compare-team-${i}`) != null && localStorage.getItem(`compare-team-${i}`) != "") {
             tempTeamSelect.value = localStorage.getItem(`compare-team-${i}`);
+            tempButton.dataset.team = localStorage.getItem(`compare-team-${i}`);
         }
+        tempButton.style.scale = 0.7;
         teamSelects.push(tempTeamSelect);
+        teamButtons.push(tempButton);
         tempTeamSelect.addEventListener("change", function () { doCompare(teamSelects, statContainers) });
 
-        compareHeaderContainer.appendChild(tempTeamSelect)
+        let tempContainer = document.createElement('div');
+        tempContainer.style.display = 'flex';
+        tempContainer.style.justifyContent = 'space-around';
+        tempContainer.style.flexDirection = 'column';
+
+        tempContainer.appendChild(tempTeamSelect);
+        tempContainer.appendChild(tempButton);
+
+        compareHeaderContainer.appendChild(tempContainer);
     }
 
     let compareDescriptionContainer = document.createElement("div");
@@ -119,7 +141,6 @@ function doCompare(teamSelects, statContainers) {
             if (width >= 95) {
                 width = 95;
             }
-            console.log(badCompareValues.includes(i) + ", " + i + ", " + teamStats[l]);
             if (badCompareValues.includes(i)) {
                 if (width > 50) {
                     tempLine.style.zIndex = 0;

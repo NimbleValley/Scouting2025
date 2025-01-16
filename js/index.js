@@ -98,6 +98,8 @@ var TEAMS_DUMB = new Array();
 // Array of how many times each team drove reckless
 var TEAMS_RECKLESS = new Array();
 
+var TEAM_MATCHES = [];
+
 var highlightTeamData;
 
 localStorage.getItem("team-color-rank-highlight") != null ? highlightTeamData = JSON.parse(localStorage.getItem("team-color-rank-highlight")) : highlightTeamData = false;
@@ -300,6 +302,8 @@ function getData() {
     removeActive();
     sideButtons[1].classList.add("active");
 
+    TEAM_MATCHES = [];
+
     // Hide other tabs
     graphContainer.style.display = "none";
     pickListContainer.style.display = "none";
@@ -333,6 +337,16 @@ function getData() {
         RECORDS.sort(function(a,b) {
             return a[FIELDS.indexOf('Match Number')]-b[FIELDS.indexOf('Match Number')];
         });
+
+        for(let t = 0; t < TEAMS.length; t ++) {
+            let tempMatches = [];
+            for(let m = 0; m < RECORDS.length; m ++) {
+                if(RECORDS[m][TEAM_INDEX] == TEAMS[t]) {
+                    tempMatches.push(RECORDS[m]);
+                }
+            }
+            TEAM_MATCHES.push(tempMatches);
+        }
 
         localStorage.setItem("direction", 0);
         localStorage.setItem("column", -1);

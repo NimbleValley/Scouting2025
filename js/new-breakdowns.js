@@ -12,7 +12,7 @@ function setUpTeamBreakdowns() {
 
     let tableHeaderContainer = document.createElement('div');
     tableHeaderContainer.id = 'table-header-container';
-    tableHeaderContainer.innerHTML = `<label for='breakdown-team-select' style='margin-right: 3vh'>Team:</label><select id='breakdown-team-select'></select>  <label for='breakdown-secondary-team-select' style='margin-right: 3vh; margin-left: 10vw;'>Compare with:</label><select id='breakdown-secondary-team-select'></select>`;
+    tableHeaderContainer.innerHTML = `<label for='breakdown-team-select' style='margin-right: 3vh'>Team:</label><select id='breakdown-team-select'></select>  <label for='breakdown-secondary-team-select' style='margin-right: 3vh; margin-left: 10vw;'>Compare with:</label><select id='breakdown-secondary-team-select'><option value='-'>-Select-</option></select><button id='new-breakdown-compare-button'>Go</button>`;
     rawTable.appendChild(tableHeaderContainer);
 
     let breakdownContainer = document.createElement('div');
@@ -28,8 +28,40 @@ function setUpTeamBreakdowns() {
         breakdownTeamSelect.appendChild(tempOption);
     }
 
+    // If there was a previously selected team select them
+    if (localStorage.getItem('breakdown-team') != null && TEAMS.includes(parseInt(localStorage.getItem('breakdown-team')))) {
+        breakdownTeamSelect.value = localStorage.getItem('breakdown-team');
+    }
+
     breakdownTeamSelect.addEventListener('change', function (e) {
         runTeamBreakdown(this.value);
+    });
+
+
+
+    // SECONDARY TEAM
+    let breakdownSecondaryTeamSelect = document.getElementById('breakdown-secondary-team-select');
+
+    for (let i = 0; i < TEAMS.length; i++) {
+        let tempOption = document.createElement('option');
+        tempOption.value = TEAMS[i];
+        tempOption.innerText = TEAMS[i];
+        breakdownSecondaryTeamSelect.appendChild(tempOption);
+    }
+
+    breakdownSecondaryTeamSelect.addEventListener('change', function (e) {
+        localStorage.setItem(`compare-team-0`, document.getElementById('breakdown-team-select').value);
+        localStorage.setItem(`compare-team-1`, document.getElementById('breakdown-secondary-team-select').value);
+    });
+
+    document.getElementById('new-breakdown-compare-button').addEventListener('click', function () {
+        if (document.getElementById('breakdown-secondary-team-select').value == '-') {
+            alert('Select a team.');
+            return;
+        }
+        removeActive();
+        sideButtons[5].classList.add("active");
+        setUpCompare();
     });
 
     let breakdownLines = document.createElement('div');
@@ -77,6 +109,27 @@ function setUpTeamBreakdowns() {
     let videoContainer = document.createElement('div');
     videoContainer.id = 'breakdown-video-container';
 
+
+
+
+
+    let matchTablesContainer = document.createElement('div');
+    matchTablesContainer.id = 'breakdown-match-table-container';
+    let matchTableSelect = document.createElement('select');
+    matchTableSelect.innerHTML = `<option value='worst'>Worst Match</option><option value='median'>Median Match</option><option value='best'>Best Match</option>`;
+    let matchTableTeamSelect = document.createElement('select');
+    matchTableTeamSelect.id = 'match-team-table-select';
+    matchTableSelect.addEventListener('change', function () {
+        getTeamMatchTable(document.getElementById('breakdown-team-select'), this.value, 'Tele Points');
+    });
+    let matchTableHeader = document.createElement('div');
+    matchTableHeader.appendChild(matchTableSelect);
+    matchTableHeader.appendChild(matchTableTeamSelect);
+    matchTablesContainer.appendChild(matchTableHeader);
+
+
+
+
     let consistencyContainer = document.createElement('div');
     consistencyContainer.id = 'breakdown-consistency-graph-container';
     let consistencySelect = document.createElement('select');
@@ -96,8 +149,6 @@ function setUpTeamBreakdowns() {
             }
         }
 
-        console.warn(teamFields);
-
         breakdownGraphs[0] = showConsistencyLineGraph(document.getElementById('breakdown-consistency-graph-canvas'), matches, teamFields, [team]);
     });
     let consistencyCanvas = document.createElement('canvas');
@@ -108,9 +159,11 @@ function setUpTeamBreakdowns() {
         tempOption.innerText = consistencyCategories[i];
         consistencySelect.appendChild(tempOption);
     }
+
     consistencyContainer.appendChild(consistencySelect);
     consistencyContainer.appendChild(consistencyCanvas);
     videoGraphContainer.appendChild(videoContainer);
+    videoGraphContainer.appendChild(matchTablesContainer);
     videoGraphContainer.appendChild(consistencyContainer);
 
 
@@ -142,12 +195,28 @@ function setUpTeamBreakdowns() {
 
     breakdownContainer.appendChild(secondContainer);
 
+    if(TEAMS.length < 2) {
+        getTeamData();
+    }
+
     runTeamBreakdown(breakdownTeamSelect.value);
 }
 
 var currentMatchVideos = [];
 
 function runTeamBreakdown(team) {
+
+    localStorage.setItem('breakdown-team', team);
+
+    let matchTeamTableSelect = document.getElementById('match-team-table-select');
+    matchTeamTableSelect.innerHTML = '';
+    console.log(TEAMS.indexOf(team))
+    for(let i = 0; i < TEAM_MATCHES[TEAMS.indexOf(parseInt(team))].length; i ++) {
+        let tempOption = document.createElement('option');
+        tempOption.value = TEAM_MATCHES[TEAMS.indexOf(parseInt(team))][i][2];
+        tempOption.innerText = TEAM_MATCHES[TEAMS.indexOf(parseInt(team))][i][2];
+        matchTeamTableSelect.appendChild(tempOption);
+    }
 
     console.warn(breakdownGraphs.length);
     for (let i = 0; i < breakdownGraphs.length; i++) {
@@ -248,7 +317,9 @@ function runTeamBreakdown(team) {
 
 
 
+function getTeamMatchTable(team, tableType, stat) {
 
+}
 
 
 

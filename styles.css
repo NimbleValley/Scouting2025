@@ -982,11 +982,11 @@ h2 {
 
 #compare-header-container {
     width: 80vh;
-    height: 10vh;
+    height: 20vh;
     top: 25vh;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: stretch;
     background-color: #333333;
     color: white;
     font-size: 4vh;
@@ -1839,7 +1839,7 @@ h6 {
     background-color: var(--bg-color);
 }
 
-#breakdown-team-select {
+#breakdown-team-select, #breakdown-secondary-team-select {
     width: fit-content;
 }
 
@@ -1860,12 +1860,33 @@ h6 {
     }
 }
 
+#new-breakdown-compare-button {
+    margin-left: 5vh;
+}
+
 #breakdown-match-video-select {
     width: 15vh;
 }
 
 #breakdown-consistency-graph-select {
     width: fit-content;
+}
+
+#breakdown-match-table-container {
+    width: 75vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #313131;
+    color: white;
+    padding: 2vh;
+    height: 47vh;
+    justify-content: space-around;
+    gap: 2vh;
+    border-radius: 0.75vh;
+
+    select {
+        width: fit-content;
+    }
 }
 
 #breakdown-consistency-graph-container {
