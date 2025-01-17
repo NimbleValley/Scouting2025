@@ -47,6 +47,7 @@ function showBarGraph(canvas, sortedGraphColumn, teamsSorted, description) {
     };
 
     graph = new Chart(canvas, config);
+    return graph;
 }
 
 function showScatterChart(canvas, teamData2d, description) {
@@ -129,6 +130,8 @@ function showScatterChart(canvas, teamData2d, description) {
     //graph.resize(window.innerHeight * 1.75, window.innerWidth * 0.4);
 
     // Refer to https://github.com/chartjs/Chart.js/discussions/10742 to add hover effect
+
+    return graph;
 }
 
 function showMatrixGraph(canvas, teamData, matchNumbers, includedFields, description) {

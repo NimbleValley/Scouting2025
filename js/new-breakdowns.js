@@ -163,7 +163,7 @@ function setUpTeamBreakdowns() {
     consistencyContainer.appendChild(consistencySelect);
     consistencyContainer.appendChild(consistencyCanvas);
     videoGraphContainer.appendChild(videoContainer);
-    videoGraphContainer.appendChild(matchTablesContainer);
+    //videoGraphContainer.appendChild(matchTablesContainer);
     videoGraphContainer.appendChild(consistencyContainer);
 
 
@@ -187,15 +187,51 @@ function setUpTeamBreakdowns() {
     autoPlacementChartContainer.appendChild(autoPlacementLevelChartCanvas);
     telePlacementChartContainer.appendChild(telePlacementLevelChartCanvas);
 
+    let subjectiveRanksContainer = document.createElement('div');
+    subjectiveRanksContainer.id = 'subjective-ranks-container';
+    subjectiveRanksContainer.innerHTML = `
+    <div class='breakdown-subjective-category-container'>
+
+    <h3>Composite rating:</h3>
+
+    <h2 id='new-breakdown-composite-rating'>:)</h2>
+
+    </div>
+    <div class='breakdown-subjective-category-container'>
+
+    <h3 >Scouter rating:</h3>
+
+    <h2 id='new-breakdown-scouter-rating'>92</h2>
+
+    </div>
+
+    <div class='breakdown-subjective-category-container'>
+
+    <h3>Driver rating:</h3>
+
+    <h2 id='new-breakdown-driver-rating'>92</h2>
+
+    </div>
+    <div class='breakdown-subjective-category-container'>
+
+    <h3 >Speed rating:</h3>
+
+    <h2 id='new-breakdown-speed-rating'>92</h2>
+
+    </div>
+    
+    `
+
     teamInformationContainer.appendChild(autoPlacementChartContainer);
     teamInformationContainer.appendChild(telePlacementChartContainer);
+    teamInformationContainer.appendChild(subjectiveRanksContainer);
 
     secondContainer.appendChild(videoGraphContainer);
     secondContainer.appendChild(teamInformationContainer);
 
     breakdownContainer.appendChild(secondContainer);
 
-    if(TEAMS.length < 2) {
+    if (TEAMS.length < 2) {
         getTeamData();
     }
 
@@ -208,15 +244,14 @@ function runTeamBreakdown(team) {
 
     localStorage.setItem('breakdown-team', team);
 
-    let matchTeamTableSelect = document.getElementById('match-team-table-select');
+    /*let matchTeamTableSelect = document.getElementById('match-team-table-select');
     matchTeamTableSelect.innerHTML = '';
-    console.log(TEAMS.indexOf(team))
     for(let i = 0; i < TEAM_MATCHES[TEAMS.indexOf(parseInt(team))].length; i ++) {
         let tempOption = document.createElement('option');
         tempOption.value = TEAM_MATCHES[TEAMS.indexOf(parseInt(team))][i][2];
         tempOption.innerText = TEAM_MATCHES[TEAMS.indexOf(parseInt(team))][i][2];
         matchTeamTableSelect.appendChild(tempOption);
-    }
+    }*/
 
     console.warn(breakdownGraphs.length);
     for (let i = 0; i < breakdownGraphs.length; i++) {
@@ -312,6 +347,11 @@ function runTeamBreakdown(team) {
 
     let tempTelePieGraph = showPieGraph(document.getElementById('tele-placement-level-chart-canvas'), totalTeleLevels, teleLabels, 'Tele Corals');
     breakdownGraphs.push(tempTelePieGraph);
+
+    let teamRow = TEAM_ROWS[TEAMS.indexOf(parseInt(team))];
+    document.getElementById('new-breakdown-scouter-rating').innerText = `${Math.round(teamRow[TEAM_FIELDS.indexOf('Pick Rating')]/2*1000)/10}`;
+    document.getElementById('new-breakdown-driver-rating').innerText = `${Math.round((teamRow[TEAM_FIELDS.indexOf('Driver Rating')]-1)/4*1000)/10}`;
+    document.getElementById('new-breakdown-speed-rating').innerText = `${ Math.round((teamRow[TEAM_FIELDS.indexOf('Cycle Rating')] + teamRow[TEAM_FIELDS.indexOf('Intake Rating')] - 2)/4*1000)/10 }`;
 }
 
 
@@ -360,6 +400,7 @@ function getTeamMatchesTBA(url, container) {
                 document.getElementById('breakdown-video-container').appendChild(currentMatchVideos[this.value]);
             });
             container.appendChild(tempNewContainer);
-            container.appendChild(currentMatchVideos[0]);
+            if (currentMatchVideos.length > 0)
+                container.appendChild(currentMatchVideos[0]);
         });
 }

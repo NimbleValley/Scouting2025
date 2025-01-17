@@ -40,7 +40,7 @@ if (localStorage.getItem("spreadsheet-url") == null || localStorage.getItem("spr
 
 // FIXME important these match up, probably could improve
 
-const teamDataToKeep = ['Team Number', 'Total Points', 'Auto Points', 'Tele Points', 'Endgame Points', 'Auto L4', 'Auto L3', 'Auto L2', 'Auto L1', 'Auto Processor', 'Auto Net', 'Auto Algae Removed', 'Auto Miss', 'Auto Coral', 'Tele L4', 'Tele L3', 'Tele L2', 'Tele L1', 'Tele Processor', 'Tele Net', 'Tele Algae Removed', 'Tele Miss', 'Tele Coral', 'Total Net', 'Total Processor', 'Total Algae Removed', 'Total Coral', 'Driver Rating', 'Intake Rating', 'Cycle Rating'];
+const teamDataToKeep = ['Team Number', 'Total Points', 'Auto Points', 'Tele Points', 'Endgame Points', 'Auto L4', 'Auto L3', 'Auto L2', 'Auto L1', 'Auto Processor', 'Auto Net', 'Auto Algae Removed', 'Auto Miss', 'Auto Coral', 'Tele L4', 'Tele L3', 'Tele L2', 'Tele L1', 'Tele Processor', 'Tele Net', 'Tele Algae Removed', 'Tele Miss', 'Tele Coral', 'Total Net', 'Total Processor', 'Total Algae Removed', 'Total Coral', 'Driver Rating', 'Intake Rating', 'Cycle Rating', 'Pick Rating'];
 const breakdownCategories = ['Total Points', 'Auto Points', 'Tele Points', 'Endgame Points', 'Auto Coral', 'Tele Coral', 'Total Net', 'Total Processor', 'Total Algae Removed'];
 const consistencyCategories = ['Total Points', 'Auto Points', 'Tele Points', 'Endgame Points', 'Auto Miss', 'Tele Miss', 'Auto Coral', 'Tele Coral', 'Total Net', 'Total Processor', 'Total Algae Removed'];
 
@@ -599,6 +599,8 @@ function setRowHighlight(row, always) {
     }
 }
 
+var graphTabGraph;
+
 function setUpGraph() {
     graphContainer.innerHTML = "";
     pickListContainer.style.display = "none";
@@ -608,8 +610,10 @@ function setUpGraph() {
     }
 
     let tempSelectContainer = document.createElement("div");
-    tempSelectContainer.style.width = "100vh";
+    tempSelectContainer.style.width = "fit-content";
+    tempSelectContainer.style.padding = "2vh";
     tempSelectContainer.style.display = "flex";
+    tempSelectContainer.style.backgroundColor = '#303030';
 
     //graphContainer.innerHTML = "";
     graphContainer.style.display = "flex";
@@ -707,8 +711,10 @@ function setUpGraph() {
 
 function doGraph() {
 
-    terminateGraph();
-
+    if(graphTabGraph != null) {
+        graphTabGraph.destroy();
+    }
+    
     var graphCanvas = document.getElementById("graph-canvas");
 
     var graphMode = parseInt(document.getElementById("graph-number-select").value);
@@ -739,7 +745,7 @@ function doGraph() {
                     }
                 }
             }
-            showBarGraph(graphCanvas, sortedGraphColumn, teamsSorted, TEAM_FIELDS[graphColumn]);
+            graphTabGraph = showBarGraph(graphCanvas, sortedGraphColumn, teamsSorted, TEAM_FIELDS[graphColumn]);
             break;
         case 2:
             document.getElementById("graph-category-select-two").style.display = "block";
@@ -758,7 +764,7 @@ function doGraph() {
                     y: secondSortedGraphColumn[i]
                 });
             }
-            showScatterChart(graphCanvas, teamData2d, [TEAM_FIELDS[graphColumn], TEAM_FIELDS[secondGraphColumn]]);
+            graphTabGraph = showScatterChart(graphCanvas, teamData2d, [TEAM_FIELDS[graphColumn], TEAM_FIELDS[secondGraphColumn]]);
             break;
         case 4:
             document.getElementById("graph-category-select").style.display = "none";
@@ -863,7 +869,7 @@ function doGraph() {
 
             // FIXME
             // TODO Add in the color-coding, probably just sort each row & pass an array of indexes into function
-            showMatrixGraph(graphCanvas, formattedData, matchesSorted, includedFields, "Description");
+            graphTabGraph = showMatrixGraph(graphCanvas, formattedData, matchesSorted, includedFields, "Description");
             break;
         case 3:
             let teamSelect = document.getElementById("graph-category-select-team");
@@ -882,7 +888,7 @@ function doGraph() {
                 }
             }
 
-            showConsistencyLineGraph(graphCanvas, matches, teamFields, [teamSelect.value]);
+            graphTabGraph = showConsistencyLineGraph(graphCanvas, matches, teamFields, [teamSelect.value]);
             break;
         default:
             console.error("Invalid graph mode :(");

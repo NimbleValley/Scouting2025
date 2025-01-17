@@ -952,9 +952,8 @@ h2 {
     width: fit-content;
     text-align: center;
     font-weight: 400;
-    font-size: 4vh;
+    font-size: 5vh;
     margin: 0;
-    position: absolute;
 }
 
 .node-container {
@@ -1647,6 +1646,8 @@ h6 {
     flex-direction: column;
     justify-content: center;
     align-items: start;
+
+    background-color: #46413A;
 }
 
 #graph-canvas-container {
@@ -1921,6 +1922,34 @@ h6 {
 #breakdown-team-information-container {
     display: flex;
     width: fit-content;
+}
+
+#subjective-ranks-container {
+    display: grid;
+    grid-template-columns: 20vh 20vh;
+    grid-template-rows: 47.5% 47.5%;
+    grid-gap: 1.5vh;
+    column-gap: 7.5vh;
+    padding: 3vh;
+    height: 100%;
+    width: fit-content;
+    color: white;
+    user-select: none;
+}
+
+.breakdown-subjective-category-container {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    background-color: #313131;
+    border-radius: 0.75vh;
+    align-items: center;
+
+    h3 {
+        width: 100%;
+        text-align: center;
+    }
 }
 
 
