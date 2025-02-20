@@ -220,11 +220,16 @@ function setUpTeamBreakdowns() {
 
     </div>
     
-    `
+    `;
+
+    let estimatedTimesContainer = document.createElement('div');
+    estimatedTimesContainer.id = 'estimated-times-container';
+    estimatedTimesContainer.innerHTML = `<div id='estimated-algae-time-container'>0s</div> <div id='estimated-coral-time-container'>0s</div>`;
 
     teamInformationContainer.appendChild(autoPlacementChartContainer);
     teamInformationContainer.appendChild(telePlacementChartContainer);
     teamInformationContainer.appendChild(subjectiveRanksContainer);
+    teamInformationContainer.appendChild(estimatedTimesContainer);
 
     secondContainer.appendChild(videoGraphContainer);
     secondContainer.appendChild(teamInformationContainer);
@@ -241,6 +246,8 @@ function setUpTeamBreakdowns() {
 var currentMatchVideos = [];
 
 function runTeamBreakdown(team) {
+
+    let estimatedCycleTimes = estimateCycleTimes(team);
 
     localStorage.setItem('breakdown-team', team);
 
@@ -352,6 +359,9 @@ function runTeamBreakdown(team) {
     document.getElementById('new-breakdown-scouter-rating').innerText = `${Math.round(teamRow[TEAM_FIELDS.indexOf('Pick Rating')]/2*1000)/10}`;
     document.getElementById('new-breakdown-driver-rating').innerText = `${Math.round((teamRow[TEAM_FIELDS.indexOf('Driver Rating')]-1)/4*1000)/10}`;
     document.getElementById('new-breakdown-speed-rating').innerText = `${ Math.round((teamRow[TEAM_FIELDS.indexOf('Cycle Rating')] + teamRow[TEAM_FIELDS.indexOf('Intake Rating')] - 2)/4*1000)/10 }`;
+
+    document.getElementById('estimated-algae-time-container').innerHTML = `<div style='display: flex; flex-direction: column;'>Estimated Algae Time: <span class='estimation-time'>${Math.round(estimatedCycleTimes[0]*10)/10}s</span></div>`;
+    document.getElementById('estimated-coral-time-container').innerHTML = `<div style='display: flex; flex-direction: column;'>Estimated Coral Time: <span class='estimation-time'>${Math.round(estimatedCycleTimes[1]*10)/10}s</span></div>`;
 }
 
 

@@ -71,6 +71,10 @@ button:hover {
     width: 15vh;
 }
 
+#specific-team-matches-select {
+    width: fit-content;
+}
+
 #data-table {
     background-color: var(--data-table);
     border-radius: 0.5vh;
@@ -1005,6 +1009,14 @@ h2 {
     padding-top: 2vh;
 }
 
+#comparison-data-container {
+    display: flex;
+    flex-direction: column;
+    left: 0;
+    width: 100%;
+    align-items: center;
+}
+
 .compare-team-select {
     width: 20vh !important;
 }
@@ -1076,7 +1088,7 @@ h2 {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    flex-direction: column-reverse;
+    flex-direction: column;
     background-color: #3f3e3d;
 }
 
@@ -1693,13 +1705,10 @@ h6 {
     width: 15vh;
 }
 
-#category-container {
-    height: fit-content;
-}
-
 #category-table-container {
     margin-top: 2vh;
     display: flex;
+    max-width: 60vw;
 }
 
 #category-container {
@@ -1709,25 +1718,33 @@ h6 {
 
 .category-data-value {
     white-space: nowrap;
-    width: calc(100% - 1vh);
+    width: 100%;
     text-align: center;
-    font-size: 3vh;
+    font-size: 3.5vh;
     color: white;
     transition: background-color 0.15s, height 0.15s, text-shadow 0.15s, box-shadow 0.25s, border-radius 0.25s;
     background-color: #474540;
     z-index: 10;
-    margin-left: 1.5vh;
-    margin-right: 1.5vh;
+    margin-left: 3vh;
+    margin-right: 3vh;
     border-radius: 0.67vh;
     height: 4vh;
+    padding-top: 2vh;
+    padding-bottom: 2vh;
     position: relative;
-    border-top: 0.5vh solid #313131;
-    border-bottom: 0.5vh solid #313131;
+    border-top: 0.5vh solid var(--data-table);
+    border-bottom: 0.5vh solid var(--data-table);
     font-weight: normal;
-    padding: 0.75vh;
+    user-select: none;
+}
 
-    padding-left: 1.25vh;
-    padding-right: 1.25vh;
+#category-canvas-container {
+    width: 40vh;
+    margin-left: 2vh;
+    border-left: solid 0.75vh #313131;
+    border-top: solid 0.75vh #313131;
+    border-bottom: solid 0.75vh #313131;
+    background-color: #4b4848;
 }
 
 #category-category-select {
@@ -1929,7 +1946,7 @@ h6 {
     grid-template-columns: 20vh 20vh;
     grid-template-rows: 47.5% 47.5%;
     grid-gap: 1.5vh;
-    column-gap: 7.5vh;
+    column-gap: 2.5vh;
     padding: 3vh;
     height: 100%;
     width: fit-content;
@@ -1949,6 +1966,27 @@ h6 {
     h3 {
         width: 100%;
         text-align: center;
+    }
+}
+
+#estimated-times-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 3vh;
+    user-select: none;
+    color: white;
+
+    div {
+        background-color: #313131;
+        padding: 0.5vh;
+        border-radius: 0.75vh;
+    }
+
+    .estimation-time {
+        font-weight: bold;
+        font-size: 5vh;
     }
 }
 

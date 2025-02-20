@@ -9,6 +9,9 @@ function setUpCompare() {
     let compareContainer = document.createElement("div");
     compareContainer.id = "compare-container";
 
+    let comparisonDataContainer = document.createElement('div');
+    comparisonDataContainer.id = 'comparison-data-container';
+
     let compareHeaderContainer = document.createElement("div");
     compareHeaderContainer.id = "compare-header-container";
 
@@ -87,11 +90,12 @@ function setUpCompare() {
             tempLineContainer.appendChild(tempInnerLine);
         }
 
-        compareContainer.appendChild(tempStat);
+        comparisonDataContainer.appendChild(tempStat);
         statContainers.push(tempStat);
     }
 
     compareContainer.appendChild(compareHeaderContainer);
+    compareContainer.appendChild(comparisonDataContainer);
     rawTable.appendChild(compareContainer);
 
     doCompare(teamSelects, statContainers);
@@ -177,7 +181,7 @@ function doCompare(teamSelects, statContainers) {
             if (teamStats[0] == teamStats[1]) {
                 console.log(width);
                 tempLine.style.zIndex = 0;
-                tempNumbers[l].style.backgroundColor = "#3d8eff";
+                tempNumbers[l].style.backgroundColor = "transparent";
                 tempNumbers[l].style.fontWeight = "bold";
                 tempNumbers[l].style.textShadow = "#006aff 0px 0px 0.75vh";
                 tempNumbers[l].style.border = "solid 0.5vh #3d8eff";

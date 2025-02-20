@@ -1,5 +1,6 @@
 // TODO Everything haha 
 
+console.log(math.sqrt(-4).toString())
 
 // Animation timeline
 var tl = new TimelineMax();
@@ -334,14 +335,14 @@ function getData() {
         TEAMS.sort(function (a, b) { return a - b });
         //console.log(TEAMS);
 
-        RECORDS.sort(function(a,b) {
-            return a[FIELDS.indexOf('Match Number')]-b[FIELDS.indexOf('Match Number')];
+        RECORDS.sort(function (a, b) {
+            return a[FIELDS.indexOf('Match Number')] - b[FIELDS.indexOf('Match Number')];
         });
 
-        for(let t = 0; t < TEAMS.length; t ++) {
+        for (let t = 0; t < TEAMS.length; t++) {
             let tempMatches = [];
-            for(let m = 0; m < RECORDS.length; m ++) {
-                if(RECORDS[m][TEAM_INDEX] == TEAMS[t]) {
+            for (let m = 0; m < RECORDS.length; m++) {
+                if (RECORDS[m][TEAM_INDEX] == TEAMS[t]) {
                     tempMatches.push(RECORDS[m]);
                 }
             }
@@ -379,8 +380,26 @@ function resetRaw() {
 
     let tableHeaderContainer = document.createElement('div');
     tableHeaderContainer.id = 'table-header-container';
-    tableHeaderContainer.innerHTML = `<select id='table-type-select' value='raw'><option value="team">Team Data</option><option value="raw" selected>Raw Data</option></select> <label for='raw-match-number-input' style='margin-left: 7vh;'>Jump to match:</label><input type='text' id='raw-match-number-input'>`;
+    tableHeaderContainer.innerHTML = `<select id='table-type-select' value='raw'><option value="team">Team Data</option><option value="raw" selected>Raw Data</option></select> <label for='raw-match-number-input' style='margin-left: 7vh;'>Jump to match:</label><input type='text' id='raw-match-number-input'>   <label for='specific-team-matches-select' style='margin-left: 7vh;'>Specific team:</label> <select id='specific-team-matches-select'><option value='-1'>ALL</option></select>`;
     rawTable.appendChild(tableHeaderContainer);
+
+    let specificTeamMatchesSelect = document.getElementById('specific-team-matches-select');
+    for (let i = 0; i < TEAMS.length; i++) {
+        if (parseInt(TEAMS[i]) == -1) {
+            continue;
+        }
+        let tempTeamOption = document.createElement('option');
+        tempTeamOption.innerText = TEAMS[i];
+        tempTeamOption.value = TEAMS[i];
+        specificTeamMatchesSelect.appendChild(tempTeamOption);
+    }
+    specificTeamMatchesSelect.addEventListener('change', function () {
+        if (parseInt(specificTeamMatchesSelect.value) == -1) {
+            resetRaw();
+        } else {
+            resetRawByTeam(specificTeamMatchesSelect.value);
+        }
+    });
 
     document.getElementById('table-type-select').addEventListener('change', function (e) {
         if (document.getElementById('table-type-select').value == 'team') {
@@ -492,6 +511,134 @@ function resetRaw() {
                 // Otherwise that's not good because it should be there uh oh!
                 // TODO
                 //console.error("Team '" + String(RECORDS[i][TEAM_INDEX]) + "' not found in pick list :(");
+            }
+
+            // Special cases where clicking does another behavior, such as opening comments section
+            if (FIELDS[s].includes("Comments") || FIELDS[s].includes("Human Player Notes")) {
+                tempDataValue.innerText = "{ View }";
+                tempDataValue.id = i;
+                tempDataValue.classList.add(s);
+                tempDataValue.onclick = function () { showCommentModal(RECORDS[this.id][this.classList[1]]) }
+                tempDataValue.addEventListener("click", function () {
+                    setRowHighlight(this.id, true);
+                });
+            } else {
+                // Otherwise highlight the correct row
+                tempDataValue.innerText = RECORDS[i][s];
+                // id is the row the cell is in
+                tempDataValue.addEventListener("click", function () {
+                    setRowHighlight(this.id, false);
+                });
+            }
+            rawTable.children[s + 1].appendChild(tempDataValue);
+        }
+    }
+}
+
+// Opens raw data table for certain team's matches
+function resetRawByTeam(team) {
+    graphContainer.style.display = "none";
+    pickListContainer.style.display = "none";
+
+    rawTable.innerHTML = "";
+
+    let tableHeaderContainer = document.createElement('div');
+    tableHeaderContainer.id = 'table-header-container';
+    tableHeaderContainer.innerHTML = `<select id='table-type-select' value='raw'><option value="team">Team Data</option><option value="raw" selected>Raw Data</option></select> <label for='raw-match-number-input' style='margin-left: 7vh;'>Jump to match:</label><input type='text' id='raw-match-number-input'>   <label for='specific-team-matches-select' style='margin-left: 7vh;'>Specific team:</label> <select id='specific-team-matches-select'><option value='-1'>ALL</option></select>`;
+    rawTable.appendChild(tableHeaderContainer);
+
+    let specificTeamMatchesSelect = document.getElementById('specific-team-matches-select');
+    for (let i = 0; i < TEAMS.length; i++) {
+        if (parseInt(TEAMS[i]) == -1) {
+            continue;
+        }
+        let tempTeamOption = document.createElement('option');
+        tempTeamOption.innerText = TEAMS[i];
+        tempTeamOption.value = TEAMS[i];
+        specificTeamMatchesSelect.appendChild(tempTeamOption);
+    }
+    specificTeamMatchesSelect.value = team;
+    specificTeamMatchesSelect.addEventListener('change', function () {
+        if (parseInt(specificTeamMatchesSelect.value) == -1) {
+            resetRaw();
+        } else {
+            resetRawByTeam(specificTeamMatchesSelect.value);
+        }
+    });
+
+    document.getElementById('table-type-select').addEventListener('change', function (e) {
+        if (document.getElementById('table-type-select').value == 'team') {
+            getTeamData();
+        }
+    });
+
+    document.getElementById('raw-match-number-input').addEventListener('change', function (e) {
+        let desiredMatch = parseInt(document.getElementById('raw-match-number-input').value);
+        let matchNumberColumnIndex = FIELDS.indexOf('Match Number');
+        let column = document.getElementsByClassName('column')[matchNumberColumnIndex];
+
+        for (let i = 1; i < column.children.length; i++) {
+            if (parseInt(column.children[i].innerText) == desiredMatch) {
+                column.children[i].scrollIntoView({
+                    block: 'center',
+                    behavior: 'smooth' // Optional for smooth scrolling
+                });
+                setRowHighlight(i - 1, true);
+                return;
+            }
+        }
+    });
+
+    // Resets sort direction & column
+    localStorage.setItem("direction", 0);
+    localStorage.setItem("column", -1);
+
+    for (let h = 0; h < FIELDS.length; h++) {
+        // Temp column
+        let col = document.createElement("div");
+        // Temp header
+        let tempHeader = document.createElement("div");
+
+        // Temp header text
+        let tempHeaderText = document.createElement("h3");
+        tempHeaderText.innerText = FIELDS[h];
+        tempHeader.appendChild(tempHeaderText);
+        tempHeader.className = "table-header-section-raw";
+
+        // Sets data type to first character in the first row of desired column,
+        // used to see if data can be sorted numerically 
+        let dataType = 1;
+        if (RECORDS.length > 0) {
+            dataType = new String(RECORDS[0][h]).substring(0, 1);
+        }
+        // Stores the data type as the header id 
+        // TODO there is probably a more stable and better way to do this
+        tempHeader.id = dataType;
+        tempHeader.dataset.dataType = dataType;
+        // Adds column number to header class list
+        tempHeader.classList.add(`${(h)}`);
+        // FIXME Sorts the column, passes column number, if it's numerical, records, columns, fields, idk what else
+        tempHeader.onclick = function () { sortColumn(this.classList[1], detectCharacter(this.id), RECORDS, COLUMNS, FIELDS, false, true) };
+
+        col.className = "column";
+        col.appendChild(tempHeader);
+        rawTable.appendChild(col);
+    }
+
+    for (let i = 0; i < RECORDS.length; i++) {
+        if(parseInt(RECORDS[i][TEAM_INDEX]) != parseInt(team)) {
+            continue;
+        }
+        for (let s = 0; s < RECORDS[i].length; s++) {
+
+
+            // Temp data value html element
+            let tempDataValue = document.createElement("div");
+            tempDataValue.className = "data-value";
+            tempDataValue.id = i;
+            // Adds the nice norizontal stripes, easier to read
+            if (i % 3 == 0) {
+                tempDataValue.style.backgroundColor = "#302f2b";
             }
 
             // Special cases where clicking does another behavior, such as opening comments section
@@ -711,10 +858,10 @@ function setUpGraph() {
 
 function doGraph() {
 
-    if(graphTabGraph != null) {
+    if (graphTabGraph != null) {
         graphTabGraph.destroy();
     }
-    
+
     var graphCanvas = document.getElementById("graph-canvas");
 
     var graphMode = parseInt(document.getElementById("graph-number-select").value);
@@ -1786,159 +1933,6 @@ const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
-function setUpCategories() {
-    getTeamData();
-
-    let categoryContainer = document.createElement("div");
-    categoryContainer.id = "category-container";
-
-    rawTable.innerHTML = "";
-
-    let tempTeamSelect = document.createElement("select");
-    tempTeamSelect.className = "compare-team-select";
-    tempTeamSelect.id = "category-team-select";
-
-    let anyOption = document.createElement("option");
-    anyOption.value = "Any";
-    anyOption.innerText = "Team?";
-    tempTeamSelect.appendChild(anyOption);
-
-    let tempSelectContainer = document.createElement("div");
-
-    for (let t = 0; t < TEAMS.length; t++) {
-        let tempOption = document.createElement("option");
-        tempOption.value = String(TEAMS[t]);
-        tempOption.innerText = TEAMS[t];
-        tempTeamSelect.appendChild(tempOption);
-    }
-    tempTeamSelect.value = "Any";
-    tempSelectContainer.appendChild(tempTeamSelect);
-
-
-
-    let tempCategorySelect = document.createElement("select");
-    tempCategorySelect.className = "compare-team-select";
-    tempCategorySelect.id = "category-category-select";
-
-    tempTeamSelect.addEventListener('change', runCategories);
-    tempCategorySelect.addEventListener('change', runCategories);
-
-    console.log(TEAM_FIELDS)
-
-    for (let t = 1; t < TEAM_FIELDS.length; t++) {
-        let tempOption = document.createElement("option");
-        tempOption.value = String(t);
-        tempOption.innerText = TEAM_FIELDS[t];
-        tempCategorySelect.appendChild(tempOption);
-    }
-    tempSelectContainer.appendChild(tempCategorySelect);
-
-    categoryContainer.appendChild(tempSelectContainer);
-    categoryContainer.style.backgroundColor = '#313131';
-    rawTable.appendChild(categoryContainer);
-
-    if (localStorage.getItem("category") != null) {
-        tempCategorySelect.value = localStorage.getItem("category");
-    }
-
-    runCategories();
-}
-
-function runCategories() {
-    let categoryContainer = document.getElementById("category-container");
-
-    if (categoryContainer.children.length > 1) {
-        for (let i = 0; i < 1; i++) {
-            categoryContainer.removeChild(categoryContainer.lastChild);
-        }
-    }
-
-    let columnNumber = parseInt(document.getElementById("category-category-select").value);
-
-    localStorage.setItem("category", document.getElementById("category-category-select").value);
-
-    let tempColumns = [];
-    for (let i = 0; i < 3; i++) {
-        let tempColumn = document.createElement("div");
-        tempColumn.className = "column";
-        tempColumn.style.marginRight = "2.5vh";
-        tempColumns.push(tempColumn);
-    }
-
-    let valuesSorted = JSON.parse(JSON.stringify(TEAM_COLUMNS[columnNumber]));
-    valuesSorted = valuesSorted.sort(function (a, b) { return b - a });
-
-    let teams = [];
-
-    let tempTeamColumn = JSON.parse(JSON.stringify(TEAM_COLUMNS[columnNumber]));
-    let tempTeams = JSON.parse(JSON.stringify(TEAMS));
-
-    for (let i = 0; i < TEAMS.length; i++) {
-        let index = tempTeamColumn.indexOf(valuesSorted[i]);
-        teams.push(tempTeams[index]);
-
-        tempTeamColumn.splice(index, 1);
-        tempTeams.splice(index, 1);
-    }
-
-    let tableContainer = document.createElement("div");
-    tableContainer.id = "category-table-container";
-
-    for (let i = 0; i < TEAM_COLUMNS[columnNumber].length; i++) {
-        let tempPlace = document.createElement("div");
-        tempPlace.innerText = i + 1;
-        tempPlace.className = "category-data-value";
-        tempColumns[0].appendChild(tempPlace);
-
-        let tempTeam = document.createElement("div");
-        tempTeam.innerText = teams[i];
-        tempTeam.className = "category-data-value";
-        tempColumns[1].appendChild(tempTeam);
-
-        let tempValue = document.createElement("div");
-        tempValue.innerText = valuesSorted[i];
-        tempValue.className = "category-data-value";
-        tempColumns[2].appendChild(tempValue);
-
-        if (i % 3 == 1) {
-            tempPlace.style.backgroundColor = "#302f2b";
-            tempTeam.style.backgroundColor = "#302f2b";
-            tempValue.style.backgroundColor = "#302f2b";
-        }
-    }
-
-    for (let c = 0; c < tempColumns.length; c++) {
-        tableContainer.appendChild(tempColumns[c]);
-    }
-
-    categoryContainer.appendChild(tableContainer);
-
-    highlightCategory();
-}
-
-function highlightCategory() {
-    let targetTeam = document.getElementById("category-team-select").value;
-
-    if (targetTeam == "Any") {
-        return;
-    }
-    targetTeam = parseInt(targetTeam);
-
-    let columns = document.getElementsByClassName("column");
-    console.log(columns[0]);
-
-    for (let i = 0; i < columns[0].children.length; i++) {
-        //console.log(columns[1][i]);
-        if (parseInt(columns[1].children[i].innerText) == targetTeam) {
-            columns[0].children[i].style.backgroundColor = "rgb(189, 95, 33)";
-            columns[1].children[i].style.backgroundColor = "rgb(189, 95, 33)";
-            columns[2].children[i].style.backgroundColor = "rgb(189, 95, 33)";
-            columns[0].children[i].scrollIntoView();
-            return;
-        }
-    }
-}
-
 function dowlocalStoragePickListnloadPickList() {
     localStorage.setItem("pick-list-backup", JSON.parse(JSON.stringify(PICK_LIST_TEAM_KEY)));
 }
@@ -1952,4 +1946,72 @@ function setColorScheme() {
         //root.style.setProperty("--bg-color", "rgb(235, 235, 235)");
         //root.style.setProperty("--data-table", "rgb(210, 210, 210)");
     }
+}
+
+function estimateCycleTimes(team) {
+
+    let teamMatches = TEAM_MATCHES[TEAMS.indexOf(parseInt(team))];
+
+    let algaeTimes = [];
+    let coralTimes = [];
+
+    for (let f = 0; f < teamMatches.length - 1; f++) {
+        for (let s = f + 1; s < teamMatches.length; s++) {
+            let firstAlgaeTele = teamMatches[f][FIELDS.indexOf('Tele Net')] + (0.5 * teamMatches[f][FIELDS.indexOf('Tele Processor')]) + (0.2 * teamMatches[f][FIELDS.indexOf('Tele Algae Removed')]);
+            let secondAlgaeTele = teamMatches[s][FIELDS.indexOf('Tele Net')] + (0.5 * teamMatches[s][FIELDS.indexOf('Tele Processor')]) + (0.2 * teamMatches[s][FIELDS.indexOf('Tele Algae Removed')]);
+
+            let firstCoralTele = (teamMatches[f][FIELDS.indexOf('Tele L4')] * 1.15) + (1 * teamMatches[f][FIELDS.indexOf('Tele L3')]) + (1 * teamMatches[f][FIELDS.indexOf('Tele L2')]) + (0.9 * teamMatches[f][FIELDS.indexOf('Tele L1')]);
+            let secondCoralTele = (teamMatches[s][FIELDS.indexOf('Tele L4')] * 1.15) + (1 * teamMatches[s][FIELDS.indexOf('Tele L3')]) + (1 * teamMatches[s][FIELDS.indexOf('Tele L2')]) + (0.9 * teamMatches[f][FIELDS.indexOf('Tele L1')]);
+
+            let firstMatchTime = 133;
+            let secondMatchTime = 133;
+
+            if (teamMatches[f][FIELDS.indexOf('Shallow Climb')] == 'Yes' || teamMatches[f][FIELDS.indexOf('Deep Climb')] == 'Yes') {
+                firstMatchTime = 128;
+            }
+
+            if (teamMatches[s][FIELDS.indexOf('Shallow Climb')] == 'Yes' || teamMatches[s][FIELDS.indexOf('Deep Climb')] == 'Yes') {
+                secondMatchTime = 128;
+            }
+
+            if ((firstAlgaeTele == 0 && firstCoralTele == 0) || (secondAlgaeTele == 0 && secondCoralTele == 0)) {
+                continue;
+            }
+
+            if (firstAlgaeTele / firstCoralTele == secondAlgaeTele / secondCoralTele) {
+                continue;
+            }
+
+            // Defining the coefficients matrix and constants vector
+            let coefficients = [
+                [firstAlgaeTele, firstCoralTele],
+                [secondAlgaeTele, secondCoralTele]
+            ];
+            let constants = [firstMatchTime, secondMatchTime];
+
+            console.log(coefficients)
+
+            let solutions = math.lusolve(coefficients, constants);
+
+            let estimatedAlgaeTime = solutions[0][0];
+            let estimatedCoralTime = solutions[1][0];
+
+            algaeTimes.push(estimatedAlgaeTime);
+            coralTimes.push(estimatedCoralTime);
+
+        }
+    }
+
+    algaeTimes.sort(function (a, b) {
+        return a - b;
+    });
+
+    coralTimes.sort(function (a, b) {
+        return a - b;
+    });
+
+    let medianAlgaeTime = algaeTimes[Math.floor(algaeTimes.length / 2)];
+    let medianCoralTime = coralTimes[Math.floor(coralTimes.length / 2)];
+
+    return [medianAlgaeTime, medianCoralTime];
 }
