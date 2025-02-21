@@ -536,7 +536,7 @@ h3 {
 
 .pick-list-operator-button {
     position: fixed;
-    width: 20vh;
+    width: fit-content;
     height: 8vh;
     border: 0.5vh solid rgb(173, 100, 48);
     border-radius: 1vh;
@@ -548,6 +548,7 @@ h3 {
     font-size: 4vh;
     font-family: 'Poppins', sans-serif;
     transition: background-color 0.15s, color 0.15s;
+    top: 2vh;
 }
 
 .pick-list-operator-button:hover {
@@ -1989,6 +1990,22 @@ h6 {
         font-size: 5vh;
     }
 }
+
+
+
+
+
+
+
+.new-pick-list-instructions-bullet {
+    color: white;
+    margin: 2vh;
+    font-size: 4vh;
+    text-shadow: 0px 0px 1.5vh black;
+    max-width: 75vw;
+}
+
+
 
 
 

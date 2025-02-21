@@ -4,7 +4,6 @@ function setUpCompare() {
 
     rawTable.innerHTML = "";
     graphContainer.style.display = "none";
-    pickListContainer.style.display = "none";
 
     let compareContainer = document.createElement("div");
     compareContainer.id = "compare-container";

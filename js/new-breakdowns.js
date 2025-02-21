@@ -6,7 +6,6 @@ function setUpTeamBreakdowns() {
     }
 
     graphContainer.style.display = 'none';
-    pickListContainer.style.display = 'none';
 
     rawTable.innerHTML = '';
 

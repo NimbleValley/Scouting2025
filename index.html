@@ -24,21 +24,6 @@
         <div id="load-horizontal"></div>
         <div id="load-vertical"></div>
     </div>-->
-    <div id="pick-list-container">
-        <input type="range" min="1.5" max="5" value="4" class="slider" id="pick-list-scale" step="0.1">
-        <form id="pick-list-form">
-            <button id="sync-pick-list-button" class="pick-list-operator-button" type="submit">Sync</button>
-        </form>
-        <button id="sort-pick-list-button" class="pick-list-operator-button" onclick="showPickListSort()">Sort</button>
-        <button id="save-pick-list-button" class="pick-list-operator-button" onclick="downloadPickList()">Save</button>
-        <button id="recover-pick-list-button" class="pick-list-operator-button" onclick="recoverPickList()">Recover</button>
-        <div id="number-pick-list-container">
-
-        </div>
-        <div id="inner-pick-list-container">
-
-        </div>
-    </div>
 
     <div id="settings">
         <div id="settings-interior">
@@ -79,7 +64,7 @@
             <!--<div class="side-button" onclick="setUpMatches()">Matches</div>-->
             <div class="side-button" onclick="setUpSimulations()">Simulate</div>
             <!--<div class="side-button" onclick="setUpMatches()">Matches</div>-->
-            <div class="side-button" onclick="setUpPickList()">Pick List</div>
+            <div class="side-button" onclick="setUpNewPickList()">Pick List</div>
             <div class="side-button" onclick="toggleSettings()">Settings</div>
         </div>
         <div id="open-sidebar" onclick="toggleSidebar()">
@@ -99,19 +84,6 @@
         </div>
     </div>
 
-    <div id="pick-list-sort-modal" class="modal">
-        <!-- Modal content -->
-        <div class="modal-content">
-            <span class="close-pick-list-sort-modal" onclick="closePickListSortModal()">&times;</span>
-            <p>Select statistic to sort by:</p>
-            <div class="container">
-                <div class="pick-list-sort-button" onclick="sortPickList(1)">Auto Points</div>
-                <div class="pick-list-sort-button" onclick="sortPickList(2)">Tele Points</div>
-                <div class="pick-list-sort-button" onclick="sortPickList(4)">Total Points</div>
-            </div>
-        </div>
-    </div>
-
     <!-- Needed for CSV fetching, could remove, but probably not worth small speed boost -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://unpkg.com/mathjs@14.0.1/lib/browser/math.js"></script>
@@ -124,6 +96,7 @@
     <script src="js/autopie.js"></script>
     <script src="js/compare.js"></script>
     <script src="js/new-breakdowns.js"></script>
+    <script src="js/new-picklist.js"></script>
     <script src="js/categories.js"></script>
     
 </body>

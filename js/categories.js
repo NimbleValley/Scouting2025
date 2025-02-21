@@ -1,5 +1,3 @@
-const { label } = require("three/webgpu");
-
 var categoryGraph;
 
 function setUpCategories() {

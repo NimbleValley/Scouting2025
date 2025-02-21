@@ -123,9 +123,6 @@ var PICK_LIST_OBJECTS = new Array();
 // TODO I forgot how this works double check
 var PICK_LIST_ORDER = new Array();
 
-
-// Container for entier pick list page, buttons and the list
-const pickListContainer = document.getElementById("pick-list-container");
 // Container for pick list numbers
 const numberPickListContainer = document.getElementById("number-pick-list-container");
 // Container for sortable pick list divs
@@ -135,7 +132,7 @@ const teamColors = ["limegreen", "gold", "#fa1616"];
 // Pick list div background colors for labeling
 const pickListColors = ["#458a30", "#8a8130", "#8a3230"];
 // Creates the sortable pick list
-new Sortable(innerPickListContainer, {
+/*new Sortable(innerPickListContainer, {
     // Drag animation delay, ms
     animation: 150,
     ghostClass: 'sortable-ghost',
@@ -184,14 +181,9 @@ new Sortable(innerPickListContainer, {
         info[event.newIndex].id = event.newIndex;
     }
 });
-
+*/
 
 localStorage.setItem("previousHighlightRow", -1);
-
-const pickListScaleSlider = document.getElementById("pick-list-scale");
-// TODO I hid it for now
-pickListScaleSlider.style.display = "none";
-pickListScaleSlider.addEventListener("input", pickListSliderCallback);
 
 // TBA API constants, for finding events
 var TBA_EVENT_KEYS;
@@ -307,7 +299,6 @@ function getData() {
 
     // Hide other tabs
     graphContainer.style.display = "none";
-    pickListContainer.style.display = "none";
 
     rawTable.innerHTML = "<h5>Fetching Spreadsheet...</h5>";
     CSV.fetch({
@@ -369,7 +360,6 @@ function getData() {
 // Opens raw data table, resets raw data table
 function resetRaw() {
     graphContainer.style.display = "none";
-    pickListContainer.style.display = "none";
 
     rawTable.innerHTML = "";
     TEAMS_FLIPPED = [];
@@ -538,7 +528,6 @@ function resetRaw() {
 // Opens raw data table for certain team's matches
 function resetRawByTeam(team) {
     graphContainer.style.display = "none";
-    pickListContainer.style.display = "none";
 
     rawTable.innerHTML = "";
 
@@ -750,7 +739,6 @@ var graphTabGraph;
 
 function setUpGraph() {
     graphContainer.innerHTML = "";
-    pickListContainer.style.display = "none";
 
     if (TEAM_ROWS.length < 1) {
         getTeamData();
@@ -1296,7 +1284,6 @@ async function setUpPickList() {
     graphContainer.style.display = "none";
     breakdownGrid.style.display = "none";
     rawTable.innerHTML = "";
-    pickListContainer.style.display = "grid";
 
     innerPickListContainer.innerHTML = "";
     for (let i = 0; i < TEAMS.length; i++) {
@@ -1686,7 +1673,6 @@ function closePickListSortModal() {
 function getTeamData() {
     // Hide all other tabs, resets arrays
     graphContainer.style.display = "none";
-    pickListContainer.style.display = "none";
 
     rawTable.innerHTML = "";
     TEAM_COLUMNS = [];
