@@ -172,7 +172,7 @@ function highlightCategory() {
 
 function showCompareBarGraph(canvas, sortedGraphColumn, teamsSorted, description) {
 
-    console.log("Rendering horizontal bar graph.");
+    console.log("Rendering compare bar graph.");
 
     var data = [];
 
