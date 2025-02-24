@@ -1936,6 +1936,10 @@ function setColorScheme() {
 
 function estimateCycleTimes(team) {
 
+    if(team == -1 || team == '-1') {
+        return;
+    }
+
     let teamMatches = TEAM_MATCHES[TEAMS.indexOf(parseInt(team))];
 
     let algaeTimes = [];

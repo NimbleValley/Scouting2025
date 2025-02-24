@@ -2,6 +2,9 @@ var newPickListQualities = {
     sortedList: []
 }
 
+var newPickListOrderTeams = [];
+var newTempPickListOrderTeams = [];
+
 function setUpNewPickList() {
     if (TEAMS.length < 3) {
         getTeamData();
@@ -77,7 +80,7 @@ function generateNewPickList() {
     //    <h2 class='new-pick-list-instructions-bullet'>- Require certain features, teams that do not fit criteria will be listed separately</h2>
 
     rawTable.innerHTML = `<div style='display: flex; flex-direction: column; align-items: left'>
-    <button class='pick-list-operator-button' style='right: 25vh;'>Save List</button>
+    <button class='pick-list-operator-button' style='right: 25vh;' onclick='finalizeNewPickList();'>Save List</button>
     <button class='pick-list-operator-button' onclick='setUpNewPickList();'>Cancel</button>
     <h5>Generate pick list...</h5>
     <h2 class='new-pick-list-instructions-bullet'>- Weigh statistics 0 (no impact) to 1 (heaviest impact)</h2>
@@ -122,7 +125,13 @@ function generateNewPickList() {
     <canvas id='preview-weights-canvas'></canvas>
     </div>
 
-    </div>`;
+    </div>
+    
+    <div style='margin-left: 10vh'>
+        <h5>Preview list:</h5>
+        <div id='pick-list-preview-container'></div>
+    </div>
+    `;
 
     document.getElementById('total-point-weight-slider').addEventListener('input', function () {
         document.getElementById('total-point-weight-label').innerText = `Total points: ${this.value}`;
@@ -150,7 +159,7 @@ function generateNewPickList() {
     });
 
     document.getElementById('barge-points-weight-slider').addEventListener('input', function () {
-        document.getElementById('barge-points-weight-label').innerText = `Algae removed: ${this.value}`;
+        document.getElementById('barge-points-weight-label').innerText = `Barge points: ${this.value}`;
         temporaryPickListAttributes.bargePoints = parseFloat(this.value);
         handleWeightsChange();
     });
@@ -168,6 +177,7 @@ function generateNewPickList() {
     });
 
     handleWeightsChange();
+    previewNewPickList();
 }
 
 function handleWeightsChange() {
@@ -186,7 +196,9 @@ function handleWeightsChange() {
         }
     }
 
-    previewWeightsGraph = updatePreviewPieChart(document.getElementById('preview-weights-canvas'), tempFields, tempData)
+    previewWeightsGraph = updatePreviewPieChart(document.getElementById('preview-weights-canvas'), tempFields, tempData);
+
+    previewNewPickList();
 }
 
 function updatePreviewPieChart(canvas, fields, weights) {
@@ -227,4 +239,134 @@ function updatePreviewPieChart(canvas, fields, weights) {
 
     graph = new Chart(canvas, config);
     return graph;
+}
+
+function previewNewPickList() {
+    let unsortedScores = [];
+    let tempTeams = JSON.parse(JSON.stringify(TEAMS));
+
+    let weights = [temporaryPickListAttributes.totalPoints, temporaryPickListAttributes.autoPoints, temporaryPickListAttributes.telePoints, temporaryPickListAttributes.algaeRemoved, temporaryPickListAttributes.bargePoints, temporaryPickListAttributes.intakeSpeed, temporaryPickListAttributes.driverSkill];
+    let weightCategories = [TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Points')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Auto Points')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Tele Points')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Algae Removed')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Net')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Intake Rating')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Driver Rating')]];
+
+    for (let t = 0; t < tempTeams.length; t++) {
+        let tempTotal = 0;
+        for (let i = 0; i < weights.length; i++) {
+            tempTotal += weights[i] * calculateZScore(weightCategories[i], weightCategories[i][t]);
+        }
+        unsortedScores.push(tempTotal);
+    }
+
+    // Now we have z-scores, better sort
+    let sortedScores = unsortedScores.toSorted((x, y) => y - x);
+    let retainedSortedScores = JSON.parse(JSON.stringify(sortedScores));
+    let sortedTeams = [];
+
+    while (tempTeams.length > 0) {
+        for (let i = 0; i < unsortedScores.length; i++) {
+            if (unsortedScores[i] == sortedScores[0]) {
+                sortedTeams.push(tempTeams[i]);
+                tempTeams.splice(i, 1);
+                unsortedScores.splice(i, 1);
+                sortedScores.splice(0, 1);
+            }
+        }
+    }
+
+    console.log(sortedTeams);
+    let previewContainer = document.getElementById('pick-list-preview-container');
+    previewContainer.innerHTML = '';
+    for (let i = 0; i < sortedTeams.length; i++) {
+        let tempTeamReadoutContainer = document.createElement('div');
+        tempTeamReadoutContainer.style.display = 'flex';
+        tempTeamReadoutContainer.style.justifyContent = 'space-between';
+        tempTeamReadoutContainer.style.width = '20vh';
+
+        let color = ((retainedSortedScores[i] + Math.abs(retainedSortedScores[retainedSortedScores.length - 1])) / (retainedSortedScores[0] + Math.abs(retainedSortedScores[retainedSortedScores.length - 1])));
+
+        tempTeamReadoutContainer.innerHTML = `<h2 class='new-pick-list-preview-text'>${sortedTeams[i]}</h2> <h2 class='new-pick-list-preview-text' style='box-shadow: 0px 0px 0px 100vh inset rgba(${(1 - color) * 255}, ${color * 255}, 0, ${Math.pow(Math.abs(color - 0.5) * 4, 2)})'>${Math.round(retainedSortedScores[i] * 10) / 10}</h2>`;
+        previewContainer.appendChild(tempTeamReadoutContainer);
+    }
+
+    newTempPickListOrderTeams = sortedTeams;
+}
+
+function calculateZScore(array, value) {
+    const n = array.length;
+    const mean = array.reduce((a, b) => a + b) / n;
+    return (value - mean) / getStandardDeviation(array);
+}
+
+function getStandardDeviation(array) {
+    const n = array.length;
+    const mean = array.reduce((a, b) => a + b) / n;
+    return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n);
+}
+
+function finalizeNewPickList() {
+
+    rawTable.innerHTML = `<div id='new-pick-list-full-container'><button class='pick-list-operator-button' style='right: 25vh;' onclick='generateNewPickList();'>Generate</button> <button class='pick-list-operator-button' onclick=''>Export</button>
+    <h5>Draggable pick list:</h5>
+    <div style='display: flex;'>
+    <div id='new-pick-list-number-container'></div>
+    <div id='new-pick-list-draggable-container'></div>
+    </div>
+    </div>
+    `;
+
+    let pickListContainerDraggable = document.getElementById('new-pick-list-draggable-container');
+    let pickListContainerNumber = document.getElementById('new-pick-list-number-container');
+
+    newPickListOrderTeams = newTempPickListOrderTeams;
+
+    for (let i = 0; i < newPickListOrderTeams.length; i++) {
+        let tempTeamReadoutContainer = document.createElement('div');
+        tempTeamReadoutContainer.className = 'new-pick-list-draggable-team-container';
+
+        tempTeamReadoutContainer.innerHTML = `<h2 class='new-pick-list-team-text'>${newPickListOrderTeams[i]}</h2> `;
+        pickListContainerDraggable.appendChild(tempTeamReadoutContainer);
+
+        let tempNumberContainer = document.createElement('div');
+        tempNumberContainer.style.display = 'flex';
+        tempNumberContainer.style.justifyContent = 'space-between';
+        tempNumberContainer.style.width = '20vh';
+
+        tempNumberContainer.innerHTML = `<h2 class='new-pick-list-preview-text'>${i}</h2> `;
+        pickListContainerNumber.appendChild(tempNumberContainer);
+    }
+
+    new Sortable(pickListContainerDraggable, {
+        // Drag animation delay, ms
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        onUpdate: function (event) {
+            // Old pick list key
+            /*let oldTeam = newPickListOrderTeams[event.oldIndex];
+
+            for (var i = 0; i < Math.abs(event.oldIndex - event.newIndex); i++) {
+                // Loops through all elements between the modified indicies, 
+                // and bumps them up or down oen depending on direction
+                if (event.oldIndex > event.newIndex) {
+                    PICK_LIST_TEAM_KEY[event.oldIndex - i] = PICK_LIST_TEAM_KEY[event.oldIndex - i - 1];
+                    green[event.oldIndex - i].id = parseInt(green[event.oldIndex - i].id) + 1;
+                    yellow[event.oldIndex - i].id = parseInt(yellow[event.oldIndex - i].id) + 1;
+                    red[event.oldIndex - i].id = parseInt(red[event.oldIndex - i].id) + 1;
+                    info[event.oldIndex - i].id = parseInt(info[event.oldIndex - i].id) + 1;
+                } else {
+                    PICK_LIST_OBJECTS[event.oldIndex + i] = PICK_LIST_OBJECTS[event.oldIndex + i + 1];
+                    PICK_LIST_TEAM_KEY[event.oldIndex + i] = PICK_LIST_TEAM_KEY[event.oldIndex + i + 1];
+                    green[event.oldIndex + i].id = parseInt(green[event.oldIndex + i].id) - 1;
+                    yellow[event.oldIndex + i].id = parseInt(yellow[event.oldIndex + i].id) - 1;
+                    red[event.oldIndex + i].id = parseInt(red[event.oldIndex + i].id) - 1;
+                    info[event.oldIndex + i].id = parseInt(info[event.oldIndex + i].id) - 1;
+                }
+            }
+            // Swap the objects & buttons
+            PICK_LIST_OBJECTS[event.newIndex] = oldObject;
+            PICK_LIST_TEAM_KEY[event.newIndex] = oldKey;
+            green[event.newIndex].id = event.newIndex;
+            yellow[event.newIndex].id = event.newIndex;
+            red[event.newIndex].id = event.newIndex;
+            info[event.newIndex].id = event.newIndex;*/
+        }
+    });
 }
