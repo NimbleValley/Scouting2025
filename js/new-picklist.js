@@ -1,7 +1,3 @@
-var newPickListQualities = {
-    sortedList: []
-}
-
 var newPickListOrderTeams = [];
 var newTempPickListOrderTeams = [];
 
@@ -13,10 +9,10 @@ function setUpNewPickList() {
     rawTable.innerHTML = '';
     graphContainer.style.display = '';
 
-    newPickListQualities.sortedList = localStorage.getItem("new-sorted-pick-list");
+    newPickListOrderTeams = JSON.parse(localStorage.getItem("new-sorted-pick-list"));
 
     // If no pick list loaded, default to sorting by total points
-    if (newPickListQualities.sortedList == null || localStorage.getItem("new-sorted-pick-list") == null) {
+    if (newPickListOrderTeams == null || localStorage.getItem("new-sorted-pick-list") == null) {
         console.warn('Null pick list, adding sorted by total points.');
 
         let sortedTotalPoints = TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Points')].toSorted((x, y) => y - x);
@@ -33,12 +29,10 @@ function setUpNewPickList() {
             }
         }
 
-        newPickListQualities.sortedList = sortedTeams;
-
         showGreetingScreenPrompt();
+    } else {
+        showFinalNewPickList();
     }
-
-    console.log(newPickListQualities);
 }
 
 function showGreetingScreenPrompt() {
@@ -46,7 +40,6 @@ function showGreetingScreenPrompt() {
     <button class='pick-list-operator-button' onclick='generateNewPickList();'>Generate</button>
     <h5>Pick list instructions:</h5>
     <h2 class='new-pick-list-instructions-bullet'>- No pick list could be loaded from device</h2>
-    <h2 class='new-pick-list-instructions-bullet'>- Default pick list created sorted by team total points</h2>
     <h2 class='new-pick-list-instructions-bullet'>- Click the 'Generate' button to create a new custom pick list. If saved, this will override old pick list.</h2>
     <h2 class='new-pick-list-instructions-bullet'>- Pick list saves in browser cache so should be retained between sessions</h2>
     <h2 class='new-pick-list-instructions-bullet'>- Pick list will only update on your screen locally, not online</h2>
@@ -303,8 +296,13 @@ function getStandardDeviation(array) {
 }
 
 function finalizeNewPickList() {
+    newPickListOrderTeams = newTempPickListOrderTeams;
+    showFinalNewPickList();
+}
 
-    rawTable.innerHTML = `<div id='new-pick-list-full-container'><button class='pick-list-operator-button' style='right: 25vh;' onclick='generateNewPickList();'>Generate</button> <button class='pick-list-operator-button' onclick=''>Export</button>
+function showFinalNewPickList() {
+
+    rawTable.innerHTML = `<div id='new-pick-list-full-container'><button class='pick-list-operator-button' style='right: 25vh;' onclick='generateNewPickList();'>Generate</button> <button class='pick-list-operator-button' onclick='copyPickList()'>Export</button>
     <h5>Draggable pick list:</h5>
     <div style='display: flex;'>
     <div id='new-pick-list-number-container'></div>
@@ -316,11 +314,18 @@ function finalizeNewPickList() {
     let pickListContainerDraggable = document.getElementById('new-pick-list-draggable-container');
     let pickListContainerNumber = document.getElementById('new-pick-list-number-container');
 
-    newPickListOrderTeams = newTempPickListOrderTeams;
+    localStorage.setItem("new-sorted-pick-list", JSON.stringify(newPickListOrderTeams));
 
     for (let i = 0; i < newPickListOrderTeams.length; i++) {
         let tempTeamReadoutContainer = document.createElement('div');
         tempTeamReadoutContainer.className = 'new-pick-list-draggable-team-container';
+
+        tempTeamReadoutContainer.addEventListener('click', function (e) {
+            localStorage.setItem('breakdown-team', parseInt(this.innerText));
+            setUpTeamBreakdowns();
+            e.preventDefault();
+            removeActive();
+        });
 
         tempTeamReadoutContainer.innerHTML = `<h2 class='new-pick-list-team-text'>${newPickListOrderTeams[i]}</h2> `;
         pickListContainerDraggable.appendChild(tempTeamReadoutContainer);
@@ -339,6 +344,13 @@ function finalizeNewPickList() {
         animation: 150,
         ghostClass: 'sortable-ghost',
         onUpdate: function (event) {
+            newPickListOrderTeams = [];
+            let tempTeamContainers = document.getElementsByClassName('new-pick-list-team-text');
+            for (let i = 0; i < tempTeamContainers.length; i++) {
+                newPickListOrderTeams.push(parseInt(tempTeamContainers[i].innerText));
+            }
+            console.log(newPickListOrderTeams);
+            localStorage.setItem("new-sorted-pick-list", JSON.stringify(newPickListOrderTeams));
             // Old pick list key
             /*let oldTeam = newPickListOrderTeams[event.oldIndex];
 
@@ -369,4 +381,17 @@ function finalizeNewPickList() {
             info[event.newIndex].id = event.newIndex;*/
         }
     });
+}
+
+async function copyPickList() {
+    let text = JSON.stringify(newPickListOrderTeams);
+    text = text.replace(/,/g, '\n');
+    text = text.replace('[','');
+    text = text.replace(']','');
+    try {
+        await navigator.clipboard.writeText(text);
+        alert('Pick list copied to clipboard. Open new document or spreadsheet to paste & print list.');
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+    }
 }

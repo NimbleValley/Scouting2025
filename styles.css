@@ -2041,6 +2041,13 @@ h6 {
     user-select: none;
     padding: 1vh 3vh 1vh 3vh;
     width: 100%;
+    transition: color 0.15s;
+}
+
+.new-pick-list-team-text:hover {
+    cursor: pointer;
+    color: orange;
+    font-weight: bold;
 }
 
 .scout-form-generation-slider-container {
