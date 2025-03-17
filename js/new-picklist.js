@@ -53,10 +53,12 @@ var temporaryPickListAttributes = {
     algaeRemoved: 0.1,
     bargePoints: 0,
     intakeSpeed: 0.2,
-    driverSkill: 0.4
+    driverSkill: 0.4,
+    endgamePoints: 0.4,
+    totalCoral: 0.4
 }
 
-var fields = ['Total Points', 'Auto Points', 'Tele Points', 'Algae Removed', 'Barge Points', 'Intake Speed', 'Driver Skill'];
+var fields = ['Total Points', 'Auto Points', 'Tele Points', 'Algae Removed', 'Barge Points', 'Intake Speed', 'Driver Skill', 'Endgame Points', 'Total Coral'];
 
 var previewWeightsGraph;
 
@@ -68,7 +70,9 @@ function generateNewPickList() {
         algaeRemoved: 0.1,
         bargePoints: 0,
         intakeSpeed: 0.2,
-        driverSkill: 0.4
+        driverSkill: 0.4,
+        endgamePoints: 0.4,
+        totalCoral: 0.4
     }
     //    <h2 class='new-pick-list-instructions-bullet'>- Require certain features, teams that do not fit criteria will be listed separately</h2>
 
@@ -112,6 +116,16 @@ function generateNewPickList() {
     <div class='scout-form-generation-slider-container'>
         <input type="range" min="0" max="1" value="0.4" step="0.1" class="slider" id="driver-skill-weight-slider">
         <h6 id='driver-skill-weight-label'>Driver skill: 0.4</h6>
+    </div>
+
+    <div class='scout-form-generation-slider-container'>
+        <input type="range" min="0" max="1" value="0.4" step="0.1" class="slider" id="endgame-point-weight-slider">
+        <h6 id='endgame-point-weight-label'>Endgame points: 0.4</h6>
+    </div>
+
+    <div class='scout-form-generation-slider-container'>
+        <input type="range" min="0" max="1" value="0.4" step="0.1" class="slider" id="total-coral-weight-slider">
+        <h6 id='total-coral-weight-label'>Total coral: 0.4</h6>
     </div>
 
     <div id='preview-weights-canvas-container'>
@@ -169,6 +183,18 @@ function generateNewPickList() {
         handleWeightsChange();
     });
 
+    document.getElementById('endgame-point-weight-slider').addEventListener('input', function () {
+        document.getElementById('endgame-point-weight-label').innerText = `Endgame points: ${this.value}`;
+        temporaryPickListAttributes.endgamePoints = parseFloat(this.value);
+        handleWeightsChange();
+    });
+
+    document.getElementById('total-coral-weight-slider').addEventListener('input', function () {
+        document.getElementById('total-coral-weight-label').innerText = `Total coral: ${this.value}`;
+        temporaryPickListAttributes.totalCoral = parseFloat(this.value);
+        handleWeightsChange();
+    });
+
     handleWeightsChange();
     previewNewPickList();
 }
@@ -178,8 +204,8 @@ function handleWeightsChange() {
         previewWeightsGraph.destroy();
     }
 
-    let tempData = [temporaryPickListAttributes.totalPoints, temporaryPickListAttributes.autoPoints, temporaryPickListAttributes.telePoints, temporaryPickListAttributes.algaeRemoved, temporaryPickListAttributes.bargePoints, temporaryPickListAttributes.intakeSpeed, temporaryPickListAttributes.driverSkill];
-    let tempFields = ['Total Points', 'Auto Points', 'Tele Points', 'Algae Removed', 'Barge Points', 'Intake Speed', 'Driver Skill'];
+    let tempData = [temporaryPickListAttributes.totalPoints, temporaryPickListAttributes.autoPoints, temporaryPickListAttributes.telePoints, temporaryPickListAttributes.algaeRemoved, temporaryPickListAttributes.bargePoints, temporaryPickListAttributes.intakeSpeed, temporaryPickListAttributes.driverSkill, temporaryPickListAttributes.endgamePoints, temporaryPickListAttributes.totalCoral];
+    let tempFields = ['Total Points', 'Auto Points', 'Tele Points', 'Algae Removed', 'Barge Points', 'Intake Speed', 'Driver Skill', 'Endgame Points', 'Total Coral'];
 
     for (let i = 0; i < tempData.length; i++) {
         if (parseFloat(tempData[i]) == 0.0) {
@@ -238,8 +264,8 @@ function previewNewPickList() {
     let unsortedScores = [];
     let tempTeams = JSON.parse(JSON.stringify(TEAMS));
 
-    let weights = [temporaryPickListAttributes.totalPoints, temporaryPickListAttributes.autoPoints, temporaryPickListAttributes.telePoints, temporaryPickListAttributes.algaeRemoved, temporaryPickListAttributes.bargePoints, temporaryPickListAttributes.intakeSpeed, temporaryPickListAttributes.driverSkill];
-    let weightCategories = [TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Points')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Auto Points')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Tele Points')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Algae Removed')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Net')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Intake Rating')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Driver Rating')]];
+    let weights = [temporaryPickListAttributes.totalPoints, temporaryPickListAttributes.autoPoints, temporaryPickListAttributes.telePoints, temporaryPickListAttributes.algaeRemoved, temporaryPickListAttributes.bargePoints, temporaryPickListAttributes.intakeSpeed, temporaryPickListAttributes.driverSkill, temporaryPickListAttributes.endgamePoints, temporaryPickListAttributes.totalCoral];
+    let weightCategories = [TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Points')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Auto Points')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Tele Points')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Algae Removed')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Net')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Intake Rating')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Driver Rating')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Endgame Points')], TEAM_COLUMNS[TEAM_FIELDS.indexOf('Total Coral')]];
 
     for (let t = 0; t < tempTeams.length; t++) {
         let tempTotal = 0;
@@ -386,8 +412,8 @@ function showFinalNewPickList() {
 async function copyPickList() {
     let text = JSON.stringify(newPickListOrderTeams);
     text = text.replace(/,/g, '\n');
-    text = text.replace('[','');
-    text = text.replace(']','');
+    text = text.replace('[', '');
+    text = text.replace(']', '');
     try {
         await navigator.clipboard.writeText(text);
         alert('Pick list copied to clipboard. Open new document or spreadsheet to paste & print list.');

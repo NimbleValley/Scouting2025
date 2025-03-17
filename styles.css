@@ -1970,6 +1970,33 @@ h6 {
     }
 }
 
+#new-breakdown-stat-comment-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#new-breakdown-stats-container {
+    display: flex;
+}
+
+#new-breakdown-comments-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #313131;
+    height: 39vh;
+    padding: 6vh;
+    border-radius: 0.75vh;
+    width: 80vh;
+    overflow-y: scroll;
+}
+
+.new-breakdown-comment {
+    font-size: 3vh;
+    color: white;
+    margin-bottom: 8vh;
+    line-break: normal;
+}
+
 #estimated-times-container {
     height: 100%;
     display: flex;

@@ -221,6 +221,10 @@ function setUpTeamBreakdowns() {
     
     `;
 
+    let statsCommentsContainer = document.createElement('div');
+    statsCommentsContainer.id = 'new-breakdown-stat-comment-container';
+    statsCommentsContainer.innerHTML = `<div id='new-breakdown-stats-container'></div><div id='new-breakdown-comments-container'></div>`;
+
     let estimatedTimesContainer = document.createElement('div');
     estimatedTimesContainer.id = 'estimated-times-container';
     estimatedTimesContainer.innerHTML = `<div id='estimated-algae-time-container'>0s</div> <div id='estimated-coral-time-container'>0s</div>`;
@@ -234,6 +238,7 @@ function setUpTeamBreakdowns() {
     secondContainer.appendChild(teamInformationContainer);
 
     breakdownContainer.appendChild(secondContainer);
+    breakdownContainer.appendChild(statsCommentsContainer);
 
     if (TEAMS.length < 2) {
         getTeamData();
@@ -246,7 +251,8 @@ var currentMatchVideos = [];
 
 function runTeamBreakdown(team) {
 
-    let estimatedCycleTimes = estimateCycleTimes(team);
+    //let estimatedCycleTimes = estimateCycleTimes(team);
+    let estimatedCycleTimes = [0, 0];
 
     localStorage.setItem('breakdown-team', team);
 
@@ -295,10 +301,18 @@ function runTeamBreakdown(team) {
     let matches = [];
     let teamFields = [];
 
+    let tempCommentContainer = document.getElementById('new-breakdown-comments-container');
+    tempCommentContainer.innerHTML = '';
+
     for (let i = 0; i < RECORDS.length; i++) {
         if (parseInt(RECORDS[i][0]) == parseInt(team) && !matches.includes(RECORDS[i][2])) {
             matches.push(parseInt(RECORDS[i][2]));
             teamFields.push(RECORDS[i][FIELDS.indexOf(TEAM_FIELDS[TEAM_FIELDS.indexOf(valueSelect.value)])]);
+
+            let tempComment = document.createElement('h2');
+            tempComment.className = 'new-breakdown-comment';
+            tempComment.innerHTML = `<strong style='color: orange'>Match ${RECORDS[i][2]}:</strong> ${RECORDS[i][FIELDS.indexOf('Comments')]} <br><br> <strong style='color: orange'>Human player notes:</strong> ${RECORDS[i][FIELDS.indexOf('Human Player Notes')]}`;
+            tempCommentContainer.appendChild(tempComment);
         }
     }
 
