@@ -1839,12 +1839,21 @@ h6 {
 #simulate-header {
     display: flex;
     gap: 2vh;
+    flex-direction: column;
 }
 
 #simulation-output-container {
     color: white;
     margin-top: 5vh;
     font-size: 3vh;
+}
+
+#simulate-container {
+    background-color: #313131;
+}
+
+#simulate-type-select {
+    width: fit-content;
 }
 
 

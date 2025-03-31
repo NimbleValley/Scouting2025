@@ -56,11 +56,6 @@ const closeCommentModal = document.getElementById("close-comment-modal");
 var previousTeamComment = -1;
 
 
-// Modals used for sorting pick list teams
-const sortPickListModal = document.getElementById("pick-list-sort-modal");
-const closePickListModal = document.getElementById("close-pick-list-sort-modal");
-
-
 // Side button setup
 const sideButtons = document.getElementsByClassName("side-button");
 setUpSideButtonEvents();
@@ -115,74 +110,6 @@ highlightSelect.value = highlightTeamData;
 
 const warningTypes = ["Too Tall/s", "Comm Issue/s", "Disabled", "Unintelligent", "Reckless"];
 
-
-// TODO document this section
-var PICK_LIST = new Array();
-var PICK_LIST_TEAM_KEY = new Array();
-var PICK_LIST_OBJECTS = new Array();
-// TODO I forgot how this works double check
-var PICK_LIST_ORDER = new Array();
-
-// Container for pick list numbers
-const numberPickListContainer = document.getElementById("number-pick-list-container");
-// Container for sortable pick list divs
-const innerPickListContainer = document.getElementById("inner-pick-list-container");
-// Team colors, green for good, red for bad, etc.
-const teamColors = ["limegreen", "gold", "#fa1616"];
-// Pick list div background colors for labeling
-const pickListColors = ["#458a30", "#8a8130", "#8a3230"];
-// Creates the sortable pick list
-/*new Sortable(innerPickListContainer, {
-    // Drag animation delay, ms
-    animation: 150,
-    ghostClass: 'sortable-ghost',
-    onUpdate: function (event) {
-        // When pick list is altered
-        // event is the item that changed locations
-        // has old index and new index
-        console.log(event.oldIndex);
-
-        // Old pick list object
-        let oldObject = PICK_LIST_OBJECTS[event.oldIndex];
-        // Old pick list key
-        let oldKey = PICK_LIST_TEAM_KEY[event.oldIndex];
-
-        // All green, yellow, red, and info buttons, as we now need to reset what item they alter
-        let green = document.getElementsByClassName("pick-list-green-button");
-        let yellow = document.getElementsByClassName("pick-list-yellow-button");
-        let red = document.getElementsByClassName("pick-list-red-button");
-        let info = document.getElementsByClassName("pick-list-info-button");
-
-        for (var i = 0; i < Math.abs(event.oldIndex - event.newIndex); i++) {
-            // Loops through all elements between the modified indicies, 
-            // and bumps them up or down oen depending on direction
-            if (event.oldIndex > event.newIndex) {
-                PICK_LIST_OBJECTS[event.oldIndex - i] = PICK_LIST_OBJECTS[event.oldIndex - i - 1];
-                PICK_LIST_TEAM_KEY[event.oldIndex - i] = PICK_LIST_TEAM_KEY[event.oldIndex - i - 1];
-                green[event.oldIndex - i].id = parseInt(green[event.oldIndex - i].id) + 1;
-                yellow[event.oldIndex - i].id = parseInt(yellow[event.oldIndex - i].id) + 1;
-                red[event.oldIndex - i].id = parseInt(red[event.oldIndex - i].id) + 1;
-                info[event.oldIndex - i].id = parseInt(info[event.oldIndex - i].id) + 1;
-            } else {
-                PICK_LIST_OBJECTS[event.oldIndex + i] = PICK_LIST_OBJECTS[event.oldIndex + i + 1];
-                PICK_LIST_TEAM_KEY[event.oldIndex + i] = PICK_LIST_TEAM_KEY[event.oldIndex + i + 1];
-                green[event.oldIndex + i].id = parseInt(green[event.oldIndex + i].id) - 1;
-                yellow[event.oldIndex + i].id = parseInt(yellow[event.oldIndex + i].id) - 1;
-                red[event.oldIndex + i].id = parseInt(red[event.oldIndex + i].id) - 1;
-                info[event.oldIndex + i].id = parseInt(info[event.oldIndex + i].id) - 1;
-            }
-        }
-        // Swap the objects & buttons
-        PICK_LIST_OBJECTS[event.newIndex] = oldObject;
-        PICK_LIST_TEAM_KEY[event.newIndex] = oldKey;
-        green[event.newIndex].id = event.newIndex;
-        yellow[event.newIndex].id = event.newIndex;
-        red[event.newIndex].id = event.newIndex;
-        info[event.newIndex].id = event.newIndex;
-    }
-});
-*/
-
 localStorage.setItem("previousHighlightRow", -1);
 
 // TBA API constants, for finding events
@@ -229,66 +156,6 @@ function removeActive() {
 // Initial data fetching
 getData();
 
-
-// Fetches pick list
-function getPickList() {
-    rawTable.innerHTML = "<h5>Fetching Pick List...</h5>";
-    CSV.fetch({
-        //url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQNEBYTlOcDv1NuaCd5U-55q2czmUc-HgvNKnaRDxkkL9J39MD_ht2-6GKY4jX3bipv7dONBcUVCpU_/pub?gid=1955868836&single=true&output=csv'
-        url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQBOgllZqto92BsubFi-w9Fx0t8M3Qycv_1MhTDZ_bgGzw7KOACWde-AbUF6ujgTG9oGt7ZvUlP9RAZ/pub?gid=0&single=true&output=csv'
-    }
-    ).done(function (dataset) {
-        var tempIndex = [];
-        var tempNum = [];
-        var tempColor = [];
-        if (dataset.records.length != 0 && String(dataset.records[0][0]).includes(",")) {
-            tempIndex = dataset.records[0][0].match(/\d+/g);
-            tempNum = dataset.records[0][1].match(/\d+/g);
-            tempColor = dataset.records[0][2].match(/\d+/g);
-        } else if (dataset.records.length != 0 && !String(dataset.records[0][0]).includes(",")) {
-            tempIndex = [dataset.records[0][0]];
-            tempNum = [dataset.records[0][1]];
-            tempColor = [dataset.records[0][2]];
-        }
-        PICK_LIST = [];
-        for (var i = 0; i < tempIndex.length; i++) {
-            PICK_LIST[i] = new Array(tempIndex[i], tempNum[i], tempColor[i]);
-        }
-        //console.log(PICK_LIST);
-        PICK_LIST_OBJECTS = [];
-        PICK_LIST_TEAM_KEY = [];
-        for (var i = 0; i < PICK_LIST.length; i++) {
-            PICK_LIST_OBJECTS[i] = new PickListTeam(PICK_LIST[i][0], PICK_LIST[i][1], PICK_LIST[i][2]);
-            PICK_LIST_TEAM_KEY.push(PICK_LIST[i][1]);
-            PICK_LIST_ORDER.push(PICK_LIST[i][1]);
-        }
-        //console.log(PICK_LIST_TEAM_KEY);
-        if (PICK_LIST_OBJECTS.length != TEAMS.length || PICK_LIST_OBJECTS.length == 0) {
-            var pickListTeamsIncluded = [];
-            for (var p = 0; p < PICK_LIST_OBJECTS.length; p++) {
-                pickListTeamsIncluded.push(PICK_LIST_OBJECTS[p].getTeam());
-            }
-            for (var i = 0; i < TEAMS.length; i++) {
-                if (!pickListTeamsIncluded.includes(TEAMS[i])) {
-                    PICK_LIST_OBJECTS.push(new PickListTeam(PICK_LIST_OBJECTS.length, TEAMS[i], 0));
-                    PICK_LIST_TEAM_KEY.push(String(TEAMS[i]));
-                    PICK_LIST_ORDER.push(String(TEAMS[i]));
-                }
-            }
-        }
-        //console.log(PICK_LIST_OBJECTS);
-        resetRaw();
-    }).catch(error => {
-        console.log(error);
-        alert('Terrible Error :(.');
-        let montyWindow = window.open("", "Error Report");
-        montyWindow.document.body.innerHTML = `<h3>${error}</h3>`;
-        if (error == "TypeError: Failed to fetch") {
-            montyWindow.document.body.innerHTML = `<h3>Check Internet Connection: ${error}</h3>`;
-        }
-    });
-}
-
 // Fetches raw data table
 function getData() {
     // Make raw data side button active
@@ -311,11 +178,36 @@ function getData() {
         RECORDS = dataset.records;
         TEAMS = [];
 
+        let tempTeamNumbers = [];
+        let tempTeamFrequencies = [];
+
         //Delete Names
         for (let i = 0; i < RECORDS.length; i++) {
             RECORDS[i].splice(0, 1);
+            if (!tempTeamNumbers.includes(RECORDS[i][0])) {
+                tempTeamNumbers.push(RECORDS[i][0]);
+                tempTeamFrequencies.push(1);
+            } else {
+                tempTeamFrequencies[tempTeamNumbers.indexOf(RECORDS[i][0])]++;
+            }
         }
         FIELDS.splice(0, 1);
+
+        for (let i = 0; i < tempTeamNumbers.length; i++) {
+            if (tempTeamFrequencies[i] < 3) {
+                console.error(`TEAM ${tempTeamNumbers[i]} MAY BE FAKE, REMOVING...`);
+            }
+        }
+
+        if (RECORDS.length > 120) {
+            // CLEAN POSSIBLY FAKE TEAMS
+            for (let i = 0; i < RECORDS.length; i++) {
+                if (tempTeamFrequencies[tempTeamNumbers.indexOf(RECORDS[i][0])] < 3) {
+                    RECORDS.splice(i, 1);
+                    i--;
+                }
+            }
+        }
 
         // Update teams array & sort
         for (let i = 0; i < RECORDS.length; i++) {
@@ -342,8 +234,6 @@ function getData() {
 
         localStorage.setItem("direction", 0);
         localStorage.setItem("column", -1);
-        // Now, update pick list
-        //getPickList();
         getTeamData();
     }).catch(error => {
         // Oh no :(
@@ -491,18 +381,6 @@ function resetRaw() {
                 tempDataValue.style.backgroundColor = "#302f2b";
             }
 
-            // If the pick list contains the team & it has a color assigned,
-            // give the data cell the correct color border
-            if (PICK_LIST_TEAM_KEY.indexOf(String(RECORDS[i][TEAM_INDEX])) != -1) {
-                if (PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(RECORDS[i][TEAM_INDEX]))].getColor() != 0) {
-                    tempDataValue.style.boxShadow = `inset 0px 0px 0.15vh 0.35vh ${teamColors[PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(RECORDS[i][TEAM_INDEX]))].getColor() - 1]}`;
-                }
-            } else {
-                // Otherwise that's not good because it should be there uh oh!
-                // TODO
-                //console.error("Team '" + String(RECORDS[i][TEAM_INDEX]) + "' not found in pick list :(");
-            }
-
             // Special cases where clicking does another behavior, such as opening comments section
             if (FIELDS[s].includes("Comments") || FIELDS[s].includes("Human Player Notes")) {
                 tempDataValue.innerText = "{ View }";
@@ -615,7 +493,7 @@ function resetRawByTeam(team) {
     }
 
     for (let i = 0; i < RECORDS.length; i++) {
-        if(parseInt(RECORDS[i][TEAM_INDEX]) != parseInt(team)) {
+        if (parseInt(RECORDS[i][TEAM_INDEX]) != parseInt(team)) {
             continue;
         }
         for (let s = 0; s < RECORDS[i].length; s++) {
@@ -1178,14 +1056,6 @@ function sortColumn(colNum, type, records, columns, field, team, useCols) {
                     temp.innerText = sortedRows[i][s];
                 }
                 temp.style.boxShadow = '';
-                //Lol
-                if (true) {
-                    //console.log(PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(sortedRows[i][0]))].color);
-                    if (PICK_LIST_TEAM_KEY.indexOf(String(sortedRows[i][0])) != -1 && PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(sortedRows[i][0]))].getColor() != 0) {
-                        temp.style.boxShadow = `inset 0px 0px 0.15vh 0.35vh ${teamColors[PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(sortedRows[i][0]))].getColor() - 1]}`;
-                        //console.log(tempData.style.backgroundColor);
-                    }
-                }
             }
         }
         // This code is a mess
@@ -1275,399 +1145,6 @@ function toggleSidebar() {
 function refreshData() {
     rawTable.innerHTML = "";
     getData();
-}
-
-async function setUpPickList() {
-    getTeamData();
-
-    breakdownLines.style.display = "none";
-    graphContainer.style.display = "none";
-    breakdownGrid.style.display = "none";
-    rawTable.innerHTML = "";
-
-    innerPickListContainer.innerHTML = "";
-    for (let i = 0; i < TEAMS.length; i++) {
-        let tempNumber = document.createElement("div");
-        tempNumber.innerText = (i + 1) % 5 == 0 ? i + 1 : "";
-        tempNumber.style.color = (i + 1) % 5 == 0 ? "rgb(255, 220, 146)" : "transparent";
-        tempNumber.className = "pick-list-number";
-        numberPickListContainer.appendChild(tempNumber);
-
-        let tempTeam = document.createElement("div");
-        tempTeam.className = "pick-list-team";
-        tempTeam.id = i;
-
-        let tempTeamText = document.createElement("h7");
-        tempTeamText.innerText = PICK_LIST_OBJECTS[i].getTeam();
-
-        tempTeam.appendChild(tempTeamText);
-
-        if (TEAM_ROWS[TEAMS.indexOf(PICK_LIST_OBJECTS[i].getTeam())][12] < 65) {
-            let tempWarning = document.createElement("div");
-            tempWarning.className = "warning-container";
-            let tempWarningText = document.createElement("div");
-            tempWarningText.className = "warning-popup";
-            tempWarning.appendChild(tempWarningText);
-            tempWarning.style.backgroundImage = "url('svg/target-bad.svg')";
-            tempWarningText.innerText = "Tele Speaker Accuracy " + TEAM_ROWS[TEAMS.indexOf(PICK_LIST_OBJECTS[i].getTeam())][12] + "%";
-            tempTeam.appendChild(tempWarning);
-        }
-
-        if (TEAM_ROWS[TEAMS.indexOf(PICK_LIST_OBJECTS[i].getTeam())][12] > 80) {
-            let tempWarning = document.createElement("div");
-            tempWarning.className = "warning-container";
-            let tempWarningText = document.createElement("div");
-            tempWarningText.className = "warning-popup";
-            tempWarning.appendChild(tempWarningText);
-            tempWarning.style.backgroundImage = "url('svg/target-good.svg')";
-            tempWarningText.innerText = "Tele Speaker Accuracy " + TEAM_ROWS[TEAMS.indexOf(PICK_LIST_OBJECTS[i].getTeam())][12] + "%";
-            tempTeam.appendChild(tempWarning);
-        }
-
-        if (TEAMS_FLIPPED.includes(PICK_LIST_OBJECTS[i].getTeam())) {
-            let tempWarning = document.createElement("div");
-            tempWarning.className = "warning-container";
-            let tempWarningText = document.createElement("div");
-            tempWarningText.className = "warning-popup";
-            tempWarning.appendChild(tempWarningText);
-            tempWarning.style.backgroundImage = "url('svg/too-tall.svg')";
-            let counter = 0;
-            for (let x = 0; x < TEAMS_FLIPPED.length; x++) {
-                if (TEAMS_FLIPPED[x] == PICK_LIST_OBJECTS[i].getTeam()) {
-                    counter++;
-                }
-            }
-            tempWarningText.innerText = "Too tall to go under stage";
-            tempTeam.appendChild(tempWarning);
-        }
-
-        if (TEAMS_COMMS.includes(PICK_LIST_OBJECTS[i].getTeam())) {
-            let tempWarning = document.createElement("div");
-            tempWarning.className = "warning-container";
-            let tempWarningText = document.createElement("div");
-            tempWarningText.className = "warning-popup";
-            tempWarning.appendChild(tempWarningText);
-            tempWarning.style.backgroundImage = "url('svg/comms.svg')";
-            let counter = 0;
-            for (let x = 0; x < TEAMS_COMMS.length; x++) {
-                if (TEAMS_COMMS[x] == PICK_LIST_OBJECTS[i].getTeam()) {
-                    counter++;
-                }
-            }
-            if (counter == 1) {
-                tempWarningText.innerText = counter + " Comm Lost";
-            } else {
-                tempWarningText.innerText = counter + " Comms Lost";
-            }
-            tempTeam.appendChild(tempWarning);
-        }
-
-        if (TEAMS_DISABLED.includes(PICK_LIST_OBJECTS[i].getTeam())) {
-            let tempWarning = document.createElement("div");
-            tempWarning.className = "warning-container";
-            let tempWarningText = document.createElement("div");
-            tempWarningText.className = "warning-popup";
-            tempWarning.appendChild(tempWarningText);
-            tempWarning.style.backgroundImage = "url('svg/disabled.svg')";
-            let counter = 0;
-            for (let x = 0; x < TEAMS_DISABLED.length; x++) {
-                if (TEAMS_DISABLED[x] == PICK_LIST_OBJECTS[i].getTeam()) {
-                    counter++;
-                }
-            }
-            if (counter == 1) {
-                tempWarningText.innerText = counter + " Time Disabled";
-            } else {
-                tempWarningText.innerText = counter + " Times Disabled";
-            }
-            tempTeam.appendChild(tempWarning)
-        }
-
-        if (TEAMS_DUMB.includes(PICK_LIST_OBJECTS[i].getTeam())) {
-            let tempWarning = document.createElement("div");
-            tempWarning.className = "warning-container";
-            let tempWarningText = document.createElement("div");
-            tempWarningText.className = "warning-popup";
-            tempWarning.appendChild(tempWarningText);
-            tempWarning.style.backgroundImage = "url('svg/dumb.svg')";
-            let counter = 0;
-            for (var x = 0; x < TEAMS_DUMB.length; x++) {
-                if (TEAMS_DUMB[x] == PICK_LIST_OBJECTS[i].getTeam()) {
-                    counter++;
-                }
-            }
-            if (counter == 1) {
-                tempWarningText.innerText = counter + " Dumb Report";
-            } else {
-                tempWarningText.innerText = counter + " Dumb Reports";
-            }
-            tempTeam.appendChild(tempWarning)
-        }
-
-        if (TEAMS_RECKLESS.includes(PICK_LIST_OBJECTS[i].getTeam())) {
-            let tempWarning = document.createElement("div");
-            tempWarning.className = "warning-container";
-            let tempWarningText = document.createElement("div");
-            tempWarningText.className = "warning-popup";
-            tempWarning.appendChild(tempWarningText);
-            tempWarning.style.backgroundImage = "url('svg/reckless.svg')";
-            let counter = 0;
-            for (var x = 0; x < TEAMS_RECKLESS.length; x++) {
-                if (TEAMS_RECKLESS[x] == PICK_LIST_OBJECTS[i].getTeam()) {
-                    counter++;
-                }
-            }
-            if (counter == 1) {
-                tempWarningText.innerText = counter + " Reckles Report";
-            } else {
-                tempWarningText.innerText = counter + " Reckless Reports";
-            }
-            tempTeam.appendChild(tempWarning)
-        }
-
-        let tempAutoPoints = document.createElement("div");
-        tempAutoPoints.innerText = TEAM_ROWS[TEAM_COLUMNS[0].indexOf(PICK_LIST_OBJECTS[i].getTeam())][1];
-        tempAutoPoints.className = "pick-list-team-stat";
-        tempTeam.appendChild(tempAutoPoints);
-
-        let tempTelePoints = document.createElement("div");
-        tempTelePoints.innerText = TEAM_ROWS[TEAM_COLUMNS[0].indexOf(PICK_LIST_OBJECTS[i].getTeam())][2];
-        tempTelePoints.className = "pick-list-team-stat";
-        tempTeam.appendChild(tempTelePoints);
-
-        let tempEndgamePoints = document.createElement("div");
-        tempEndgamePoints.innerText = TEAM_ROWS[TEAM_COLUMNS[0].indexOf(PICK_LIST_OBJECTS[i].getTeam())][3];
-        tempEndgamePoints.className = "pick-list-team-stat";
-        tempTeam.appendChild(tempEndgamePoints);
-
-        let tempTotalPoints = document.createElement("div");
-        tempTotalPoints.innerText = TEAM_ROWS[TEAM_COLUMNS[0].indexOf(PICK_LIST_OBJECTS[i].getTeam())][4];
-        tempTotalPoints.className = "pick-list-team-stat";
-        tempTeam.appendChild(tempTotalPoints);
-
-        var tempControlPanel = document.createElement("div");
-        tempControlPanel.className = "pick-list-control-panel";
-
-        var toggleControlPanel = document.createElement("div");
-        toggleControlPanel.className = "pick-list-toggle-control-panel";
-
-        tempControlPanel.appendChild(toggleControlPanel);
-
-        tempControlPanel.addEventListener("click", function (event) {
-            if (event.target.className == "pick-list-control-panel") {
-                var toggles = document.getElementsByClassName("pick-list-control-panel");
-                for (var i = 0; i < toggles.length; i++) {
-                    if (this != toggles[i]) {
-                        //toggles[i].children[0].style.display = "none";
-                        toggles[i].children[0].style.scale = 0;
-                        toggles[i].style.marginLeft = "2vh";
-                    }
-                }
-                if (this.children[0].style.scale != 1) {
-                    this.children[0].style.scale = 1;
-                    this.style.marginLeft = "17vh";
-                } else {
-                    //this.children[0].style.display = "none";
-                    this.children[0].style.scale = 0;
-                    this.style.marginLeft = "2vh";
-                }
-            } else {
-
-            }
-        });
-
-        var tempGreemButton = document.createElement("div");
-        tempGreemButton.className = "pick-list-green-button";
-        tempGreemButton.innerText = "";
-        tempGreemButton.id = i;
-        if (PICK_LIST_OBJECTS[i].getColor() == 1) {
-            tempGreemButton.style.backgroundColor = teamColors[0];
-        }
-        tempGreemButton.onclick = function () {
-            document.getElementsByClassName("pick-list-yellow-button")[this.id].style.backgroundColor = "";
-            document.getElementsByClassName("pick-list-red-button")[this.id].style.backgroundColor = "";
-            if (PICK_LIST_OBJECTS[this.id].getColor() == 1) {
-                PICK_LIST_OBJECTS[this.id].setColor(0);
-                this.style.backgroundColor = "";
-            } else {
-                PICK_LIST_OBJECTS[this.id].setColor(1);
-                this.style.backgroundColor = teamColors[0];
-            }
-            let tempClickedTeam = document.getElementsByClassName("pick-list-team")[this.id];
-            if (PICK_LIST_OBJECTS[this.id].getColor() == 0) {
-                tempClickedTeam.style.backgroundColor = "#5b5b5b";
-            } else {
-                tempClickedTeam.style.setProperty("background-color", pickListColors[PICK_LIST_OBJECTS[this.id].getColor() - 1], "important");
-            }
-            console.log(this.id);
-        }
-        toggleControlPanel.appendChild(tempGreemButton);
-
-        var tempYellowButton = document.createElement("div");
-        tempYellowButton.className = "pick-list-yellow-button";
-        tempYellowButton.innerText = "";
-        tempYellowButton.id = i;
-        if (PICK_LIST_OBJECTS[i].getColor() == 2) {
-            tempYellowButton.style.backgroundColor = teamColors[1];
-        }
-        tempYellowButton.onclick = function () {
-            document.getElementsByClassName("pick-list-green-button")[this.id].style.backgroundColor = "";
-            document.getElementsByClassName("pick-list-red-button")[this.id].style.backgroundColor = "";
-            if (PICK_LIST_OBJECTS[this.id].getColor() == 2) {
-                PICK_LIST_OBJECTS[this.id].setColor(0);
-                this.style.backgroundColor = "";
-            } else {
-                PICK_LIST_OBJECTS[this.id].setColor(2);
-                this.style.backgroundColor = teamColors[1];
-            }
-            let tempClickedTeam = document.getElementsByClassName("pick-list-team")[this.id];
-            if (PICK_LIST_OBJECTS[this.id].getColor() == 0) {
-                tempClickedTeam.style.backgroundColor = "#5b5b5b";
-            } else {
-                tempClickedTeam.style.setProperty("background-color", pickListColors[PICK_LIST_OBJECTS[this.id].getColor() - 1], "important");
-            }
-        }
-        toggleControlPanel.appendChild(tempYellowButton);
-
-        var tempRedButton = document.createElement("div");
-        tempRedButton.className = "pick-list-red-button";
-        tempRedButton.innerText = "";
-        tempRedButton.id = i;
-        if (PICK_LIST_OBJECTS[i].getColor() == 3) {
-            tempRedButton.style.backgroundColor = teamColors[2];
-        }
-        tempRedButton.onclick = function () {
-            document.getElementsByClassName("pick-list-yellow-button")[this.id].style.backgroundColor = "";
-            document.getElementsByClassName("pick-list-green-button")[this.id].style.backgroundColor = "";
-            if (PICK_LIST_OBJECTS[this.id].getColor() == 3) {
-                PICK_LIST_OBJECTS[this.id].setColor(0);
-                this.style.backgroundColor = "";
-            } else {
-                PICK_LIST_OBJECTS[this.id].setColor(3);
-                this.style.backgroundColor = teamColors[2];
-            }
-            let tempClickedTeam = document.getElementsByClassName("pick-list-team")[this.id];
-            if (PICK_LIST_OBJECTS[this.id].getColor() == 0) {
-                tempClickedTeam.style.backgroundColor = "#5b5b5b";
-            } else {
-                tempClickedTeam.style.setProperty("background-color", pickListColors[PICK_LIST_OBJECTS[this.id].getColor() - 1], "important");
-            }
-        }
-        toggleControlPanel.appendChild(tempRedButton);
-
-        tempTeam.appendChild(tempControlPanel);
-
-        var tempInfoButton = document.createElement("div");
-        tempInfoButton.className = "pick-list-info-button";
-        tempInfoButton.innerText = "i";
-        tempInfoButton.id = i;
-        tempInfoButton.onclick = function () {
-            removeActive();
-            sideButtons[2].classList.add("active");
-            getTeamData();
-            console.log(TEAMS);
-            setRowHighlight(TEAMS.indexOf(parseInt(PICK_LIST_OBJECTS[this.id].getTeam())), true);
-        }
-        tempTeam.appendChild(tempInfoButton);
-
-        if (PICK_LIST_OBJECTS[i].getColor() != 0) {
-            tempTeam.style.setProperty("background-color", pickListColors[PICK_LIST_OBJECTS[i].getColor() - 1], "important");
-        }
-
-        innerPickListContainer.appendChild(tempTeam);
-    }
-
-    await sleep(250);
-
-    let userInterval = parseInt(document.getElementById("auto-download-input").value) * 1000;
-
-    if (!intervalID) {
-        intervalID = setInterval(dowlocalStoragePickListnloadPickList, 10000);
-        console.log("Set interval");
-    }
-}
-
-function localStoragePickList() {
-
-}
-
-function downloadPickList() {
-    let fileText = JSON.parse(JSON.stringify(PICK_LIST_TEAM_KEY));
-    for (let i = 0; i < fileText.length; i++) {
-        fileText[i] += "\n";
-    }
-    const element = document.createElement("a");
-    const file = new Blob(fileText, {
-        type: "text/plain",
-    });
-    element.href = URL.createObjectURL(file);
-    element.download = "PicklistRaw.txt";
-    document.body.appendChild(element);
-    element.click();
-}
-
-function recoverPickList() {
-    console.log(localStorage.getItem("pick-list-backup"));
-    let fileText = JSON.parse(JSON.stringify(localStorage.getItem("pick-list-backup").split(",")));
-    for (let i = 0; i < fileText.length; i++) {
-        fileText[i] += "\n";
-    }
-    const element = document.createElement("a");
-    const file = new Blob(fileText, {
-        type: "text/plain",
-    });
-    element.href = URL.createObjectURL(file);
-    element.download = "PicklistRaw.txt";
-    document.body.appendChild(element);
-    element.click();
-}
-
-function showPickListSort() {
-    sortPickListModal.style.display = "block";
-}
-
-function sortPickList(colNum) {
-    var sortedColumn = JSON.parse(JSON.stringify(TEAM_COLUMNS));
-    var sortedRows = [];
-    var previousRows = [];
-    var takenRows = [];
-    var counter = 0;
-
-    sortedColumn = sortedColumn[colNum].sort(function (a, b) { return b - a });
-
-    var tempColumns = JSON.parse(JSON.stringify(TEAM_COLUMNS));
-
-    for (var r = 0; r < TEAM_ROWS.length; r++) {
-        for (var i = 0; i < tempColumns[0].length; i++) {
-            if (TEAM_COLUMNS[colNum][i] == sortedColumn[r] && !takenRows.includes(i)) {
-                sortedRows[counter] = TEAM_ROWS[i];
-                previousRows[counter] = i;
-                takenRows[counter] = i;
-                counter++;
-                break;
-            }
-        }
-    }
-
-    var newPickList = [];
-    var newPickListTeamKey = [];
-    console.log(PICK_LIST_TEAM_KEY)
-    for (var i = 0; i < sortedRows.length; i++) {
-        for (var t = 0; t < PICK_LIST_OBJECTS.length; t++) {
-            if (TEAM_ROWS[TEAMS.indexOf(PICK_LIST_OBJECTS[t].getTeam())] == sortedRows[i]) {
-                newPickList.push(PICK_LIST_OBJECTS[t]);
-                newPickListTeamKey.push(String(PICK_LIST_OBJECTS[t].getTeam()));
-                break;
-            }
-        }
-    }
-    PICK_LIST_OBJECTS = newPickList;
-    PICK_LIST_TEAM_KEY = newPickListTeamKey;
-    setUpPickList();
-}
-
-function closePickListSortModal() {
-    sortPickListModal.style.display = "none";
 }
 
 function getTeamData() {
@@ -1787,13 +1264,6 @@ function getTeamData() {
                 tempData.style.backgroundColor = "#302f2b";
             }
 
-            // If pick list contains team & team has color, set the border to correct color
-            if (PICK_LIST_TEAM_KEY.indexOf(String(TEAMS[i])) != -1) {
-                if (PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(TEAMS[i]))].getColor() != 0) {
-                    tempData.style.boxShadow = `inset 0px 0px 0.15vh 0.35vh ${teamColors[PICK_LIST_OBJECTS[PICK_LIST_TEAM_KEY.indexOf(String(TEAMS[i]))].getColor() - 1]}`;
-                }
-            }
-
             rawTable.children[c + 1].appendChild(tempData);
 
             // Average out the data
@@ -1900,27 +1370,9 @@ function toggleSettings() {
     }
 }
 
-function pickListSliderCallback() {
-    var pickListTeams = document.getElementsByClassName("pick-list-team");
-    var warnings = document.getElementsByClassName("warning-container");
-    //innerPickListContainer.style.scale = pickListScaleSlider.value;
-    for (var i = 0; i < pickListTeams.length; i++) {
-        pickListTeams[i].style.height = pickListScaleSlider.value + "vh";
-    }
-
-    for (var i = 0; i < warnings.length; i++) {
-        warnings[i].style.height = pickListScaleSlider.value + "vh";
-        warnings[i].style.width = pickListScaleSlider.value + "vh";
-    }
-}
-
 // Sleep command for functions
 const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
-}
-
-function dowlocalStoragePickListnloadPickList() {
-    localStorage.setItem("pick-list-backup", JSON.parse(JSON.stringify(PICK_LIST_TEAM_KEY)));
 }
 
 function setColorScheme() {
@@ -1936,7 +1388,7 @@ function setColorScheme() {
 
 function estimateCycleTimes(team) {
 
-    if(team == -1 || team == '-1') {
+    if (team == -1 || team == '-1') {
         return;
     }
 
