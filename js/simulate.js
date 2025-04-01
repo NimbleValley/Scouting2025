@@ -207,7 +207,6 @@ function runSampleDifferenceOfMeans() {
 
     let bWinPercentageText = document.createElement('div');
     bWinPercentageText.innerText = `Alliance 2 Win Percentage: ${Math.round((aWinPercentage)*100*10)/10}%`;
-    simulationOutputContainer.innerHTML = '';
     simulationOutputContainer.appendChild(bWinPercentageText);
 
     let simulationCanvas = document.createElement('canvas');
