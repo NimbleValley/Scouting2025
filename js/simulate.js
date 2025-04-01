@@ -114,7 +114,7 @@ function setUpSimulations() {
                 teamSelects.push(tempSelect);
             }
             let numberText = document.createElement('h6');
-            numberText.innerText = '100 trials';
+            numberText.innerText = '10,000 trials';
             simulationDetailsContainer.appendChild(numberText);
             break;
     }
@@ -187,7 +187,7 @@ function runSampleDifferenceOfMeans() {
 
     // Now randomly populate samples
     let differenceSamples = [];
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 10000; i++) {
         let difference = trialsAllianceA[Math.floor(Math.random() * trialsAllianceA.length)] - trialsAllianceB[Math.floor(Math.random() * trialsAllianceB.length)];
         difference += Math.round(15 * (Math.random() - 0.5));
         differenceSamples.push(difference);
