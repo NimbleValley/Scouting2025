@@ -219,7 +219,7 @@ function setUpTeamBreakdowns() {
 
     let statsCommentsContainer = document.createElement('div');
     statsCommentsContainer.id = 'new-breakdown-stat-comment-container';
-    statsCommentsContainer.innerHTML = `<div id='new-breakdown-stats-container'></div><div id='new-breakdown-comments-container'></div>`;
+    statsCommentsContainer.innerHTML = `<div id='new-breakdown-stats-container'></div><div id='new-breakdown-comments-container'></div><div id='new-breakdown-pit-scout-container'></div>`;
 
     let teamImage = document.createElement('img');
     teamImage.id = 'new-breakdown-team-image';
@@ -386,8 +386,25 @@ function runTeamBreakdown(team) {
     let teamImage = document.getElementById('new-breakdown-team-image');
     teamImage.src = '';
     for (let i = 0; i < TEAM_IMAGES.length; i++) {
-        if (parseInt(team) == parseInt(TEAM_IMAGES[i].teamNumber))
+        if (parseInt(team) == parseInt(TEAM_IMAGES[i].teamNumber)) {
             teamImage.src = TEAM_IMAGES[i].url;
+            break;
+        }
+    }
+
+    let pitScoutContainer = document.getElementById('new-breakdown-pit-scout-container');
+    pitScoutContainer.innerHTML = '';
+    for (let i = 0; i < TEAM_PIT_SCOUT.length; i++) {
+        if (parseInt(team) == parseInt(TEAM_PIT_SCOUT[i].teamNumber)) {
+            pitScoutContainer.innerHTML = 
+            `
+            <h2 class="new-breakdown-comment"><strong style="color: orange">Drivers: </strong>${TEAM_PIT_SCOUT[i].driverExperience}</h2>
+            <h2 class="new-breakdown-comment"><strong style="color: orange">Climb: </strong>${TEAM_PIT_SCOUT[i].climbDetails}</h2>
+            <h2 class="new-breakdown-comment"><strong style="color: orange">Changes: </strong>${TEAM_PIT_SCOUT[i].recentChanges}</h2>
+            <h2 class="new-breakdown-comment"><strong style="color: orange">Algae: </strong>${TEAM_PIT_SCOUT[i].algaeDetails}</h2>
+            `
+            break;
+        }
     }
 
     showNewBreakdownDataTable(team);

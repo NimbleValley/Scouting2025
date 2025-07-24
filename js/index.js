@@ -131,6 +131,8 @@ var TEAMS = new Array();
 
 var TEAM_IMAGES = new Array();
 
+var TEAM_PIT_SCOUT = new Array();
+
 var TEAM_PERCENTILES = new Array();
 
 
@@ -183,7 +185,10 @@ function removeActive() {
 fetchData();
 
 async function fetchData() {
+
     fetchTeamImages();
+    fetchPitScoutData();
+
     try {
         const snapshot = await db.collection('scoutingForms').get();
 
@@ -380,6 +385,25 @@ async function fetchTeamImages() {
     } catch (error) {
         alert("Error fetching team images:", error);
         console.error("Error fetching team images:", error);
+    }
+}
+
+async function fetchPitScoutData() {
+    try {
+        const snapshot = await db.collection('pitScout').get();
+
+        TEAM_PIT_SCOUT = new Array();
+
+        for (let i = 0; i < snapshot.docs.length; i++) {
+            let tempData = snapshot.docs[i].data();
+            TEAM_PIT_SCOUT.push(tempData)
+        }
+
+        console.log(TEAM_PIT_SCOUT);
+
+    } catch (error) {
+        alert("Error fetching pit scout data:", error);
+        console.error("Error fetching pit scout data:", error);
     }
 }
 
