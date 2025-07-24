@@ -221,6 +221,9 @@ function setUpTeamBreakdowns() {
     statsCommentsContainer.id = 'new-breakdown-stat-comment-container';
     statsCommentsContainer.innerHTML = `<div id='new-breakdown-stats-container'></div><div id='new-breakdown-comments-container'></div>`;
 
+    let teamImage = document.createElement('img');
+    teamImage.id = 'new-breakdown-team-image';
+
     let estimatedTimesContainer = document.createElement('div');
     estimatedTimesContainer.id = 'estimated-times-container';
     estimatedTimesContainer.innerHTML = `<div id='estimated-algae-time-container'>0s</div> <div id='estimated-coral-time-container'>0s</div>`;
@@ -240,6 +243,7 @@ function setUpTeamBreakdowns() {
     breakdownContainer.appendChild(dataTableContainer);
     breakdownContainer.appendChild(secondContainer);
     breakdownContainer.appendChild(statsCommentsContainer);
+    breakdownContainer.appendChild(teamImage);
 
     if (TEAMS.length < 2) {
         getTeamData();
@@ -319,8 +323,6 @@ function runTeamBreakdown(team) {
         }
     }
 
-    console.error(teamFields)
-
     let tempConsistencyGraph = showConsistencyLineGraph(document.getElementById('breakdown-consistency-graph-canvas'), matches, teamFields, [team]);
     breakdownGraphs.push(tempConsistencyGraph);
 
@@ -375,11 +377,18 @@ function runTeamBreakdown(team) {
 
     let teamRow = TEAM_ROWS[dataType][TEAMS.indexOf(parseInt(team))];
     document.getElementById('new-breakdown-scouter-rating').innerText = `;)`;
-    document.getElementById('new-breakdown-driver-rating').innerText = `${Math.round((teamRow[TEAM_FIELDS_ORDER.indexOf('driverSkill')]-1)/4*1000)/10}`;
+    document.getElementById('new-breakdown-driver-rating').innerText = `${Math.round((teamRow[TEAM_FIELDS_ORDER.indexOf('driverSkill')] - 1) / 4 * 1000) / 10}`;
     document.getElementById('new-breakdown-speed-rating').innerText = `;)`;
 
     document.getElementById('estimated-algae-time-container').innerHTML = `<div style='display: flex; flex-direction: column;'>Estimated Algae Time: <span class='estimation-time'>idk</span></div>`;
     document.getElementById('estimated-coral-time-container').innerHTML = `<div style='display: flex; flex-direction: column;'>Estimated Coral Time: <span class='estimation-time'>idk</span></div>`;
+
+    let teamImage = document.getElementById('new-breakdown-team-image');
+    teamImage.src = '';
+    for (let i = 0; i < TEAM_IMAGES.length; i++) {
+        if (parseInt(team) == parseInt(TEAM_IMAGES[i].teamNumber))
+            teamImage.src = TEAM_IMAGES[i].url;
+    }
 
     showNewBreakdownDataTable(team);
 }
@@ -424,9 +433,9 @@ function showNewBreakdownDataTable(team) {
     let counter = 0;
 
     for (let i = 0; i < RAW_ROWS.length; i++) {
-        if(parseInt(RAW_ROWS[i][RAW_FIELDS_ORDER.indexOf('teamNumber')]) != parseInt(team))
+        if (parseInt(RAW_ROWS[i][RAW_FIELDS_ORDER.indexOf('teamNumber')]) != parseInt(team))
             continue;
-        ++ counter;
+        ++counter;
         for (let s = 1; s < RAW_FIELDS_ORDER.length; s++) {
 
             // Temp data value html element
@@ -455,7 +464,7 @@ function showNewBreakdownDataTable(team) {
                     //setRowHighlight(this.id, false);
                 });
             }
-            dataTable.children[s-1].appendChild(tempDataValue);
+            dataTable.children[s - 1].appendChild(tempDataValue);
         }
     }
 
@@ -474,8 +483,8 @@ function showNewBreakdownDataTable(team) {
         // Temp column
         let col = document.createElement('div');
         col.className = 'column';
-        col.style.minWidth = `${oldCols[h-1].getBoundingClientRect().width}px`;
-        col.style.width = `${oldCols[h-1].getBoundingClientRect().width}px`;
+        col.style.minWidth = `${oldCols[h - 1].getBoundingClientRect().width}px`;
+        col.style.width = `${oldCols[h - 1].getBoundingClientRect().width}px`;
         totalTable.appendChild(col);
     }
 
@@ -497,7 +506,7 @@ function showNewBreakdownDataTable(team) {
                 //setRowHighlight(this.id, false);
             });
         }
-        totalTable.children[s-1].appendChild(tempDataValue);
+        totalTable.children[s - 1].appendChild(tempDataValue);
     }
 }
 

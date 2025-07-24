@@ -15,12 +15,53 @@ var tl = new TimelineMax();
 
 // Sidebar variables, self explanatory
 const sidebar = document.getElementById("sidebar");
-const openSidebarButton = document.getElementById("open-sidebar");
-const sidebarButtonContainer = document.getElementById("side-button-container");
-if (window.innerHeight > window.innerWidth) {
-    openSidebarButton.innerText = "≡";
-    sidebarButtonContainer.removeChild(sidebarButtonContainer.children[sidebarButtonContainer.childElementCount - 1]);
-}
+var openSidebarButton = document.getElementById("open-sidebar");
+var sidebarButtonContainer = document.getElementById("side-button-container");
+window.addEventListener('resize', () => {
+    if (window.innerHeight > window.innerWidth) {
+        sidebar.innerHTML = `<div id="side-button-container">
+        <div class="side-button" onclick="fetchData()">Refresh</div>
+        <div class="side-button" onclick="showTeamData()">Tables</div>
+        <!-- FIXME MIGHT HAVE TO CALL openTeamBreakdowns() twice for some reason, not sure why-->
+        <div class="side-button" onclick="setUpRanks()">Ranks</div>
+        <div class="side-button" onclick="setUpTeamBreakdowns();">Teams</div>
+        <div class="side-button" onclick="setUpGraph()">Graph</div>
+        <div class="side-button" onclick="setUpCompare()">Compare</div>
+        <!--<div class="side-button" onclick="setUpMatches()">Matches</div>-->
+        <div class="side-button" onclick="setUpSimulations()">Simulate</div>
+        <!--<div class="side-button" onclick="setUpMatches()">Matches</div>-->
+        <div class="side-button" onclick="setUpNewPickList()">Pick List</div>
+        <div class="side-button" onclick="toggleSettings()">Settings</div>
+    </div>
+    <div id="open-sidebar" onclick="toggleSidebar()">
+    ≡
+    </div>`;
+        openSidebarButton = document.getElementById("open-sidebar");
+        sidebarButtonContainer = document.getElementById("side-button-container");
+    } else {
+        sidebar.innerHTML = `<div id="side-button-container">
+        <div class="side-button" onclick="fetchData()">Refresh</div>
+        <div class="side-button" onclick="showTeamData()">Tables</div>
+        <!-- FIXME MIGHT HAVE TO CALL openTeamBreakdowns() twice for some reason, not sure why-->
+        <div class="side-button" onclick="setUpRanks()">Ranks</div>
+        <div class="side-button" onclick="setUpTeamBreakdowns();">Teams</div>
+        <div class="side-button" onclick="setUpGraph()">Graph</div>
+        <div class="side-button" onclick="setUpCompare()">Compare</div>
+        <!--<div class="side-button" onclick="setUpMatches()">Matches</div>-->
+        <div class="side-button" onclick="setUpSimulations()">Simulate</div>
+        <!--<div class="side-button" onclick="setUpMatches()">Matches</div>-->
+        <div class="side-button" onclick="setUpNewPickList()">Pick List</div>
+        <div class="side-button" onclick="toggleSettings()">Settings</div>
+    </div>
+    <div id="open-sidebar" onclick="toggleSidebar()">
+        <p>></p>
+    </div>`;
+        openSidebarButton = document.getElementById("open-sidebar");
+        sidebarButtonContainer = document.getElementById("side-button-container");
+        sidebar.style.left = '0';
+
+    }
+});
 var sidebarOpen = true;
 
 
@@ -87,25 +128,10 @@ var TEAM_ROWS = new Array();
 var TEAM_COLUMNS = new Array();
 // List of all teams
 var TEAMS = new Array();
-// Array of how many times each team has flipped
-var TEAMS_FLIPPED = new Array();
-// Array of how many times each team has lost comms
-var TEAMS_COMMS = new Array();
-// Array of how many times each team has been disabled D:
-var TEAMS_DISABLED = new Array();
-// Array of how many times each team acted dumb/unintelligent
-var TEAMS_DUMB = new Array();
-// Array of how many times each team drove reckless
-var TEAMS_RECKLESS = new Array();
+
+var TEAM_IMAGES = new Array();
 
 var TEAM_PERCENTILES = new Array();
-
-
-const highlightSelect = document.getElementById("highlight-select");
-highlightSelect.addEventListener('change', function () {
-    highlightTeamData = JSON.parse(highlightSelect.value);
-    localStorage.setItem("team-color-rank-highlight", highlightSelect.value);
-});
 
 
 const warningTypes = ["Too Tall/s", "Comm Issue/s", "Disabled", "Unintelligent", "Reckless"];
@@ -157,6 +183,7 @@ function removeActive() {
 fetchData();
 
 async function fetchData() {
+    fetchTeamImages();
     try {
         const snapshot = await db.collection('scoutingForms').get();
 
@@ -245,10 +272,10 @@ async function fetchData() {
 
             for (let c = 0; c < TEAM_FIELDS_ORDER.length; c++) {
                 let currentKey = TEAM_FIELDS_ORDER[c];
-                TEAM_RECORDS[i].mean[currentKey] = getMean(TEAM_RECORDS[i].mean[currentKey]);
-                TEAM_RECORDS[i].median[currentKey] = getMedian(TEAM_RECORDS[i].median[currentKey]);
-                TEAM_RECORDS[i].max[currentKey] = getMax(TEAM_RECORDS[i].max[currentKey]);
-                TEAM_RECORDS[i].min[currentKey] = getMin(TEAM_RECORDS[i].min[currentKey]);
+                TEAM_RECORDS[i].mean[currentKey] = Math.round(getMean(TEAM_RECORDS[i].mean[currentKey]) * 10) / 10;
+                TEAM_RECORDS[i].median[currentKey] = Math.round(getMedian(TEAM_RECORDS[i].median[currentKey]) * 10) / 10;
+                TEAM_RECORDS[i].max[currentKey] = Math.round(getMax(TEAM_RECORDS[i].max[currentKey]) * 10) / 10;
+                TEAM_RECORDS[i].min[currentKey] = Math.round(getMin(TEAM_RECORDS[i].min[currentKey]) * 10) / 10;
             }
 
         }
@@ -334,6 +361,25 @@ async function fetchData() {
     } catch (error) {
         alert("Error fetching teams:", error);
         console.error("Error fetching teams:", error);
+    }
+}
+
+async function fetchTeamImages() {
+    try {
+        const snapshot = await db.collection('robotImages').get();
+
+        TEAM_IMAGES = new Array();
+
+        for (let i = 0; i < snapshot.docs.length; i++) {
+            let tempData = snapshot.docs[i].data();
+            TEAM_IMAGES.push(tempData)
+        }
+
+        console.log(TEAM_IMAGES);
+
+    } catch (error) {
+        alert("Error fetching team images:", error);
+        console.error("Error fetching team images:", error);
     }
 }
 
@@ -948,11 +994,6 @@ function sortTeamColumn(colNum, records, columns, field) {
         }
     }
 
-}
-
-function detectCharacter(val) {
-    //console.log(val);
-    return (val == "0" || val == "1" || val == "2" || val == "3" || val == "4" || val == "5" || val == "6" || val == "7" || val == "8" || val == "9") ? 1 : 0;
 }
 
 function originalSort(record, column, field) {
