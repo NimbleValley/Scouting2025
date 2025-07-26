@@ -217,6 +217,7 @@ async function fetchData() {
             let tempData = snapshot.docs[i].data();
 
             RECORDS.push(tempData);
+            RECORDS[i].teamNumber = parseInt(RECORDS[i].teamNumber );
 
             if (!TEAMS.includes(parseInt(tempData.teamNumber)) && parseInt(tempData.teamNumber) != -1) {
                 TEAMS.push(parseInt(tempData.teamNumber));
@@ -236,7 +237,7 @@ async function fetchData() {
             return a - b;
         });
 
-        RECORDS.sort((a, b) => a.teamNumber.localeCompare(b.teamNumber));
+        RECORDS.sort((a, b) => a.teamNumber - b.teamNumber);
 
         RAW_COLUMNS = RAW_ROWS[0].map((_, colIndex) => RAW_ROWS.map(row => row[colIndex]));
 

@@ -318,7 +318,7 @@ function runTeamBreakdown(team) {
 
             let tempComment = document.createElement('h2');
             tempComment.className = 'new-breakdown-comment';
-            tempComment.innerHTML = `<strong style='color: orange'>Match ${RECORDS[i].matchNumber}:</strong> ${RECORDS[i].commentText}`;
+            tempComment.innerHTML = `<strong style='color: orange'>Match ${RAW_ROWS[i][RAW_FIELDS_ORDER.indexOf('matchNumber')]}:</strong> ${RAW_ROWS[i][RAW_FIELDS_ORDER.indexOf('commentText')]}`;
             tempCommentContainer.appendChild(tempComment);
         }
     }
